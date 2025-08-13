@@ -88,40 +88,18 @@ class ScriptGeneratorApp:
         self.browse_btn.grid(row=0, column=2)
         
         # Sample text for demonstration
-        sample_text = """Got it ✅
-I'll take the **first three snippets** from your JSON and create 1.5–3 minute YouTube scripts...
-
-## 🎬 **1. Pointer vs Value Receiver**
-
-**Opening Hook (0:00–0:10)**
-*(excited tone)*
-"🤯 In Go, you can call a method and… nothing changes!..."
-
-## 🎬 **2. Method Overloading Myth**
-
-**Opening Hook (0:00–0:10)**
-*(playfully dramatic)*
-"🚫 Think you can write two functions with the same name in Go?..."
-
-## 🎬 **3. Method on Non-Struct Types**
-
-**Opening Hook (0:00–0:10)**
-*(surprised tone)*
-"😲 You can put methods… on an int?!..."
-"""
+        sample_text = """1. Closures Explained in 30 Seconds
+Opening Hook (0:00–0:10)
+(camera zoom in on puzzled face)
+“This ONE JavaScript concept confuses even senior developers… [pause] …and today, I’m going to make it crystal clear in just 30 seconds!”"""
         self.text_area.insert('1.0', sample_text)
         
     def load_file(self):
         """Load script content from a file"""
         file_path = filedialog.askopenfilename(
             title="Select Script File",
-            filetypes=[
-                ("Text files", "*.txt"),
-                ("Markdown files", "*.md"),
-                ("All files", "*.*")
-            ]
+            filetypes=[("Text files", "*.txt"), ("Markdown files", "*.md"), ("All files", "*.*")]
         )
-        
         if file_path:
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
@@ -151,53 +129,38 @@ I'll take the **first three snippets** from your JSON and create 1.5–3 minute 
         self.root.update_idletasks()
     
     def extract_scripts(self, content):
-        """Extract individual scripts from the content"""
-        # Pattern to match script titles like "## 🎬 **1. Title**" or "## 🎬 **2. Title**"
-        pattern = r'## 🎬 \*\*(\d+)\.\s*([^*]+)\*\*'
+        """Extract individual scripts from the new numbered format"""
+        # Pattern: start of line, number dot space, title
+        pattern = r'^(\d+)\.\s*(.+)$'
+        matches = list(re.finditer(pattern, content, re.MULTILINE))
         
         scripts = []
-        matches = list(re.finditer(pattern, content))
-        
         for i, match in enumerate(matches):
             number = match.group(1)
             title = match.group(2).strip()
             
-            # Find the start and end of this script
             start_pos = match.start()
-            
             if i + 1 < len(matches):
-                # Not the last script - end before next script
                 end_pos = matches[i + 1].start()
             else:
-                # Last script - take till end
                 end_pos = len(content)
             
-            # Extract the script content
             script_content = content[start_pos:end_pos].strip()
-            
-            scripts.append({
-                'number': number,
-                'title': title,
-                'content': script_content
-            })
+            scripts.append({'number': number, 'title': title, 'content': script_content})
         
         return scripts
     
     def sanitize_filename(self, filename):
         """Sanitize filename by removing invalid characters"""
-        # Replace invalid characters with underscores
         invalid_chars = r'[<>:"/\\|?*]'
         sanitized = re.sub(invalid_chars, '_', filename)
-        # Remove multiple underscores
         sanitized = re.sub(r'_+', '_', sanitized)
-        # Remove leading/trailing underscores and spaces
         sanitized = sanitized.strip('_ ')
         return sanitized
     
     def generate_files(self):
         """Generate separate MD files for each script"""
         content = self.text_area.get('1.0', tk.END).strip()
-        
         if not content:
             messagebox.showwarning("Warning", "Please enter script content first!")
             return
@@ -208,8 +171,7 @@ I'll take the **first three snippets** from your JSON and create 1.5–3 minute 
             
             if not scripts:
                 messagebox.showwarning("Warning", 
-                    "No scripts found! Make sure your content follows the format:\n"
-                    "## 🎬 **1. Title**")
+                    "No scripts found! Make sure your content starts with a number and dot, e.g., '1. Title'")
                 self.update_status("No scripts found", 'red')
                 return
             
@@ -217,29 +179,20 @@ I'll take the **first three snippets** from your JSON and create 1.5–3 minute 
             output_dir.mkdir(exist_ok=True)
             
             generated_files = []
-            
             for script in scripts:
-                # Create filename: number_title.md
                 title_clean = self.sanitize_filename(script['title'])
                 filename = f"{script['number']}_{title_clean}.md"
                 filepath = output_dir / filename
-                
-                # Write the script to file
                 with open(filepath, 'w', encoding='utf-8') as f:
                     f.write(f"# {script['title']}\n\n")
                     f.write(script['content'])
-                
                 generated_files.append(filename)
                 self.update_status(f"Generated: {filename}", 'blue')
             
-            # Show success message
-            success_msg = f"Successfully generated {len(generated_files)} files:\n\n"
-            success_msg += "\n".join(generated_files)
+            success_msg = f"Successfully generated {len(generated_files)} files:\n\n" + "\n".join(generated_files)
             success_msg += f"\n\nFiles saved to: {output_dir}"
-            
             messagebox.showinfo("Success", success_msg)
             self.update_status(f"Generated {len(generated_files)} MD files successfully!", 'green')
-            
         except Exception as e:
             error_msg = f"Error generating files: {str(e)}"
             messagebox.showerror("Error", error_msg)
@@ -250,9 +203,7 @@ def main():
     
     # Configure style
     style = ttk.Style()
-    style.theme_use('clam')  # Use a modern theme
-    
-    # Configure custom button style
+    style.theme_use('clam')
     style.configure('Accent.TButton', foreground='white', background='#0078d4')
     style.map('Accent.TButton', background=[('active', '#106ebe')])
     
