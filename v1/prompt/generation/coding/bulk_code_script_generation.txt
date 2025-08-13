@@ -42,7 +42,7 @@ please conisder that this is interview questions and long video
 
 You are a YouTube scriptwriter who creates engaging, beginner-friendly programming explainer videos.
 
-I will give you a JSON object containing multiple programming code snippets. 
+I will give you a JSON object containing multiple programming code objects. 
 Each snippet has:
 - "title": a short video title
 - "code": a complete code example
@@ -62,6 +62,7 @@ For EACH snippet in the JSON:
 5. Keep a friendly, confident tone — educational but lively.
 6. create the youtube script max 3 code snippet then moving to the next three one.
 7. Add **pauses and rhythm** where needed — use [pause] to show natural breaks.
+8. Topic title must folllow with [numberic number]. topic_name
 
 Now here is the JSON:
-[PASTE JSON HERE]
+<json_text_here>
