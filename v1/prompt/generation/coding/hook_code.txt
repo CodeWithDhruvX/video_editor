@@ -14,6 +14,7 @@ A call-to-action (like comment, share, or watch next).
 5. Suggest the best posting time strategy and hashtags to test for maximum reach.
 
 
+
 ===========================================================================
 
 You are to transform the following list of technical interview video ideas into a JSON array of objects.
@@ -23,22 +24,21 @@ You are to transform the following list of technical interview video ideas into 
   "snippets": [
     {
       "title": "<short descriptive title>",
-      "code": "<Go code snippet, fully self-contained, short (20–25 sec reading), minimal inline comments (1–3 words), highlight pitfall if relevant, include // Output comment>",
+      "code": "<programming langauge name, fully self-contained, short (20–25 sec reading), minimal inline comments (1–3 words), highlight pitfall if relevant, include // Output comment>",
       "hook": "<1-line retention hook>"
     }
   ]
 }
 
 📜 Rules for the code:
-- Language: Go (or Python/JavaScript if specified)
+- Language: programming language
 - Must be self-contained, runnable, and short
 - Use clear minimal inline comments
 - Show `// Output: ...` for expected result
 - If there is a pitfall, show Expected vs Actual in comments
 - No external packages unless required by the example
 - Format with proper indentation and escape quotes for JSON
+- Before writing any code, insert a comment containing the programming language name. Use the correct comment syntax for that language (e.g., # Python for Python, // Go for Go, /* Java */ for Java), and ensure the comment is properly aligned according to the language’s style guidelines.
 
 📥 Input list of ideas:
 <PASTE YOUR 10 IDEAS HERE>
-
-Now, output only the JSON — no explanations, no extra text.

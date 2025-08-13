@@ -144,6 +144,7 @@
 - Don’t assume prior knowledge — explain everything like it’s Day 1.
 - End each slide with a **clear takeaway**.
 - Keep your energy up — your confidence = their attention.
+- you were teching like 7 to 8 year old child can understand our script
 
 ---
 
