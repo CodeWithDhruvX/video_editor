@@ -12,7 +12,9 @@ A call-to-action (like comment, share, or watch next).
 4. Optimize retention: ensure fast pacing, pattern interrupts, and rewatch loops.
 
 5. Suggest the best posting time strategy and hashtags to test for maximum reach.
-
+6. Add the programming lanuage name
+7. please give me the question only relvant programming langauge
+What are closures in JavaScript?
 
 
 ===========================================================================
