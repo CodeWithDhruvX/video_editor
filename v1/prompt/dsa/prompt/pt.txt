@@ -1,0 +1,105 @@
+You are an expert programmer.
+Based on the user’s input DSA question and chosen programming language, generate 3 different and interesting full code snippets.
+
+🔹 Step 1: First output only the 3 code snippets, clearly numbered (e.g., Snippet 1, Snippet 2, Snippet 3).
+🔹 Step 2: After the code, explain each one by answering:
+
+What it does  
+Why it's interesting or useful  
+When to use it (real-world context or use case)
+
+✳️ Ensure:
+
+Each snippet solves the question differently (e.g., recursion, iteration, dynamic programming)  
+Use idiomatic Golang  
+Each snippet is 15–30 lines, self-contained and testable  
+
+🔹 User Question: {Insert DSA question here (e.g., "Find the nth Fibonacci number")}
+🔹 Language: Golang
+
+Linked List (Singly)
+
+Next, create a script segment for my YouTube video. The tone should be **conversational, clear, and beginner-friendly**, crafted especially for an Indian audience who understands English.
+
+✅ Tone and Style Guidelines:
+- Use **spoken-style English**, like you're casually explaining something to a friend or junior developer.
+- Keep the language simple, friendly, and natural.
+- Use **relatable examples** (especially ones an Indian beginner would connect with, like classroom explanations, job interviews, or real coding tasks).
+- Avoid complicated words or phrases that sound too formal or western.
+- Don’t use any Hindi or Hinglish — keep it **100% English**, but **Indian-friendly**.
+- Maintain a **teacher-like tone**, as if guiding someone new to programming.
+- Explain the code line by line.
+- Mention what each part does in a clear and practical way.
+- Help beginners avoid common mistakes.
+
+Each code snippet will be explained one by one, starting from Snippet 1. Wait for me to say "yes" before moving to the next one.
+
+After all slides are completed, end with a warm, motivational outro encouraging viewers to subscribe.
+
+Then, generate this:
+
+### 🔷 JSON Metadata Format for Each Snippet
+
+Generate a structured JSON Array for the 3 Singleton Code Snippets.
+```json
+{ 
+  "videos": [ 
+    {
+      "videoFile": "C:/Users/YourName/Videos/video.mp4",
+      "title": "📌 DSA in Go: 3 Ways to Solve Fibonacci 🔥 (Recursion, Memo, Iterative)",
+      "description": "✅ Learn how to solve the Fibonacci problem in Go with 3 powerful approaches!\n\n💡 What you'll learn:\n- Recursive solution step-by-step\n- Dynamic programming using memoization\n- Iterative approach using loops\n\n🚀 Perfect for interviews and coding rounds!\n\n#golang #dsa #interviewprep #coding #shorts #fibonacci #recursion #dynamicprogramming",
+      "tags": ["golang", "dsa", "recursion", "fibonacci", "interview questions", "data structures", "algorithms"],
+      "categoryName": "Education",
+      "privacyStatus": "public",
+      "thumbnail": "C:/Users/YourName/Videos/thumbnail.png",
+      "playlistName": "Golang DSA Interview Shorts",
+      "publishAt": "2025-07-15 10:00:00",
+      "madeForKids": false,
+      "ageRestriction": false
+    }
+  ]
+}
+```
+
+Finally, generate this:
+
+### 🔷 Thumbnail Titles
+
+Generate thumbnail-safe titles (no emojis or special characters) for all 3 snippets:
+```json
+[
+    {
+        "slide_topic": "C:/Users/dhruv/Videos/2025/golang_dsa/01/fibonacci_recursive.mp4",
+        "title_text": "Go Fibonacci Recursion"
+    },
+    {
+        "slide_topic": "C:/Users/dhruv/Videos/2025/golang_dsa/01/fibonacci_memo.mp4",
+        "title_text": "Go Fibonacci Memoization"
+    },
+    {
+        "slide_topic": "C:/Users/dhruv/Videos/2025/golang_dsa/01/fibonacci_iterative.mp4",
+        "title_text": "Go Fibonacci Iterative"
+    }
+]
+```
+---
+
+### ✅ Example Use Case: Fibonacci Number
+
+> If the question is: “Find the nth Fibonacci number”, this format will give:
+- Snippet 1: Recursive approach
+- Snippet 2: Memoized DP
+- Snippet 3: Iterative loop
+- Script: Teaching with friendly Indian tone
+- JSON: YouTube metadata
+- Thumbnail Titles: Export-ready
+
+---
+
+Would you like me to now **apply this format to a real DSA problem in Go**, like:
+
+🧠 "Check if a string is a palindrome"  
+💡 "Find the kth largest element in an array"  
+💬 "Detect cycle in a linked list"
+
+If yes, tell me which question you'd like me to apply this format to first — or just say "Start with Fibonacci".

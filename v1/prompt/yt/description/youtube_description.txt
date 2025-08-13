@@ -1,0 +1,112 @@
+✅ Snippet 1: Basic File Closing Using defer
+go
+Copy
+Edit
+package main
+
+package main
+
+import "fmt"
+
+func main() {
+	// Array with fixed size
+	var arr = [3]int{1, 2, 3}
+	fmt.Println("Array:", arr)
+
+	// Slice derived from array
+	slice := arr[:]
+	fmt.Println("Slice:", slice)
+
+	// Modify array and see impact on slice
+	arr[0] = 100
+	fmt.Println("Modified Array:", arr)
+	fmt.Println("Slice reflects change:", slice)
+}
+
+✅ Snippet 2: Deferred Execution Order
+go
+Copy
+Edit
+package main
+
+import "fmt"
+
+func main() {
+	// Declare a slice using shorthand
+	numbers := []int{10, 20}
+	fmt.Println("Initial Slice:", numbers)
+
+	// Append new elements dynamically
+	numbers = append(numbers, 30, 40)
+	fmt.Println("After Append:", numbers)
+
+	// Slices grow dynamically; arrays cannot
+}
+
+
+
+✅ Snippet 3: Defer with Panic Recovery
+go
+Copy
+Edit
+package main
+
+import "fmt"
+
+func main() {
+	// Array occupies exact space for 5 elements
+	arr := [5]string{"a", "b", "c", "d", "e"}
+
+	// Slice from index 1 to 3 (excluding 4)
+	slice := arr[1:4]
+	fmt.Println("Original Array:", arr)
+	fmt.Println("Slice:", slice)
+	fmt.Printf("Slice len: %d, cap: %d\n",
+		len(slice), cap(slice))
+
+	// Append to slice
+	slice = append(slice, "z")
+	fmt.Println("After Append:", slice)
+}
+
+
+
+
+
+please make sure that create 3 objects array of json using below information
+
+Golang Fundamentals QnA 🔥 | Arrays, Slices, Maps & Structs Explained
+
+"Generate a structured JSON object using above array of json. The object should contain the following fields:
+
+videoFile: Absolute file path of the video (e.g., "C:/Users/YourName/Videos/video.mp4").
+
+title: A catchy title with emojis and keywords (e.g., "🚀 Master YouTube Automation with Python! (Step-by-Step Guide)").
+
+description: A detailed video description with bullet points, emojis, and hashtags. make sure that it will follow youtube description box length
+
+tags: A list of relevant tags related to the content.
+
+categoryName: The category of the video (e.g., "Education").
+
+privacyStatus: Either "private", "public", or "unlisted".
+
+thumbnail: Absolute file path of the thumbnail image (e.g., "C:/Users/YourName/Videos/thumbnail.png").
+
+playlistName: The playlist where this video should be added.it's has array values
+
+publishAt: Scheduled date and time in "YYYY-MM-DD HH:MM:SS" format.
+
+madeForKids: Boolean value (true or false).
+
+ageRestriction: Boolean value (true or false).
+
+✅ Ensure:
+
+Title is ≤100 characters.
+
+seo optimized title and description
+
+this is a short video
+
+please conisder that this is interview questions and long video

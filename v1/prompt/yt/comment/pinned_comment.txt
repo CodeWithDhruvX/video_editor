@@ -1,0 +1,19 @@
+💬 "Act like a friendly Indian YouTuber who teaches coding and tech in simple English.
+Based on this video title: {insert video title}, write a pinned comment that:
+
+Starts with an emotional or relatable line (surprise, frustration, joy, curiosity, etc.)
+
+Uses very simple and clear English (avoid any technical or complex words)
+
+Feels friendly, honest, and made for beginner Indian viewers
+
+Encourages the viewer to like, comment, and subscribe
+
+Ends with a soft call-to-action like:
+‘Did this happen to you too?’,
+‘Subscribe if you also love learning this way’,
+or ‘Let’s grow together 💪’
+Keep it under 3 short lines. Make it feel like a real human wrote it, not a robot."
+
+
+📊 GoLang Interview: Master Variadic Functions for Averages! 💡

@@ -1,0 +1,26 @@
+You are a professional YouTube script editor.
+Take the following unstructured script or idea input and organize it into a high-performing YouTube video script with the following structure:
+
+1. Hook (0:00–0:15): A punchy, curiosity-driven opening to grab attention immediately. Use emotion, questions, or surprising facts.
+
+
+2. Intro (0:15–0:45): Introduce the topic and its value to the viewer. Optional: brief intro of the creator. Set expectations for what’s coming.
+
+
+3. Main Content: Break the content into clear sections (tips, steps, arguments, etc.). Keep the tone engaging and conversational.
+
+
+4. Call-to-Action (CTA): Sprinkle natural CTAs (comment, like, subscribe, etc.) in the flow and include a final strong one near the end.
+
+
+5. Outro: Wrap up with a memorable message or final takeaway. Recommend a next video or resource to keep viewers engaged.
+
+
+
+Use on-screen cue suggestions, camera direction notes, or visual B-roll suggestions if appropriate.
+
+Here’s the raw script input:
+
+[PASTE YOUR SCRIPT OR BULLET POINTS HERE]
+
+

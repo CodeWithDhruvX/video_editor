@@ -1,0 +1,106 @@
+[
+    {
+        "videoFile": "C:/Users/dhruv/Videos/2025/python_hindi/subscribe/2025-07-18 21-40-13_output_final.mp4"
+    },
+    {
+        "videoFile": "C:/Users/dhruv/Videos/2025/python_hindi/subscribe/2025-07-18 21-54-56_220_output_final.mp4"
+    }
+]
+
+
+{
+  "videos": [
+    {
+      "videoFile": "C:/Users/YourName/Videos/tuple_vs_list_key/tuple_key_valid.mp4",
+      "title": "✅ Why Tuple Works as a Dict Key in Python 🔍 | Hidden Hash Power!",
+      "description": "💡 Ever wondered why tuples work as dictionary keys but lists don't?\nHere's a quick Python tip that will save you from unexpected bugs! 🐍\n\n📌 In this video:\n- ✅ Tuples as hashable keys in Python dicts\n- ❌ Why lists can't be used as keys\n- 🧠 Deep dive into Python's hashability concept\n\n🔥 Great for:\n- Python Beginners\n- Interview Prep\n- Writing safer, cleaner code\n\n👇 Comment your favorite Python trick below!\n\n#PythonTips #Dictionary #TupleVsList #PythonShorts #LearnPython #CodeBetter #ProgrammingTips #PythonTricks",
+      "tags": [
+        "python dictionary",
+        "tuple as key",
+        "hashable objects python",
+        "python tips",
+        "python interview prep",
+        "python shorts",
+        "tuple vs list python",
+        "learn python fast"
+      ],
+      "categoryName": "Education",
+      "privacyStatus": "public",
+      "thumbnail": "C:/Users/YourName/Videos/tuple_vs_list_key/tuple_key_valid_thumbnail.png",
+      "playlistName": "Python Shorts 🔥 | 1 Tip a Day",
+      "publishAt": "2025-08-01 10:00:00",
+      "madeForKids": false,
+      "ageRestriction": false
+    },
+    {
+      "videoFile": "C:/Users/YourName/Videos/tuple_vs_list_key/list_key_error.mp4",
+      "title": "❌ This Python Mistake Breaks Your Code! | Don't Use List as Dict Key 🤯",
+      "description": "🚨 STOP using lists as dictionary keys in Python!\nHere's why your code crashes and how to fix it. 🛑\n\n📌 In this video:\n- 😵 What happens when you use list as a dict key\n- 🧠 Difference between mutable & immutable types\n- ✅ Better alternatives to avoid `TypeError`\n\n⚠️ Learn this to avoid hidden bugs!\n\n#PythonMistakes #ListAsKey #TypeErrorPython #PythonDict #PythonErrors #PythonShorts #CodeTips #LearnPython",
+      "tags": [
+        "python mistakes",
+        "list as dict key error",
+        "typeerror python",
+        "mutable vs immutable",
+        "python error fix",
+        "dictionary in python",
+        "python shorts",
+        "common python bugs"
+      ],
+      "categoryName": "Education",
+      "privacyStatus": "public",
+      "thumbnail": "C:/Users/YourName/Videos/tuple_vs_list_key/list_key_error_thumbnail.png",
+      "playlistName": "Python Shorts 🔥 | 1 Tip a Day",
+      "publishAt": "2025-08-02 10:00:00",
+      "madeForKids": false,
+      "ageRestriction": false
+    }
+  ]
+}
+
+
+
+
+
+
+I have two JSON inputs:
+
+json1 – A list of objects, each containing a "videoFile" path.
+
+json2 – A list of video metadata objects under the "videos" key. Each object has keys like "videoFile", "title", "description", "tags", "publishAt", etc.
+
+🔄 Task:
+
+Replace only the "videoFile" values in json2["videos"] with those from json1, in order.
+
+Keep all other fields like title, description, tags, etc., unchanged.
+
+🗓️ Additional Requirement:
+
+Ask me for a starting date in format YYYY-MM-DD and playlist name.
+
+Starting from that date, update the "publishAt" field for each video to be one per day, using fixed time 12:00:00.
+
+Example: If I enter 2025-07-06, then:
+
+First video → "publishAt": "2025-07-06 12:00:00"
+
+Second video → "publishAt": "2025-07-07 12:00:00"
+
+Third video → "publishAt": "2025-07-08 12:00:00"
+
+…and so on.
+
+⚠️ Rules:
+
+If json1 has fewer items than json2["videos"], only replace what's available.
+
+If json1 has more items, ignore the extra ones.
+
+✅ Output:
+Return the updated json2 JSON object with:
+
+Replaced "videoFile" values
+
+Updated "publishAt" values starting from the input date
+
+All other properties preserved as-is

@@ -1,0 +1,67 @@
+
+
+please make sure that create 3 objects array of json using below information
+
+Golang Fundamentals QnA 🔥 | Arrays, Slices, Maps & Structs Explained
+
+"Generate a structured JSON object using above array of json. The object should contain the following fields:
+
+videoFile: Absolute file path of the video (e.g., "C:/Users/YourName/Videos/video.mp4").
+
+title: A catchy title with emojis and keywords (e.g., "🚀 Master YouTube Automation with Python! (Step-by-Step Guide)").
+
+description: A detailed video description with bullet points, emojis, and hashtags. make sure that it will follow youtube description box length
+
+tags: A list of relevant tags related to the content.
+
+categoryName: The category of the video (e.g., "Education").
+
+privacyStatus: Either "private", "public", or "unlisted".
+
+thumbnail: Absolute file path of the thumbnail image (e.g., "C:/Users/YourName/Videos/thumbnail.png").
+
+playlistName: The playlist where this video should be added.it's has array values
+
+publishAt: Scheduled date and time in "YYYY-MM-DD HH:MM:SS" format.
+
+madeForKids: Boolean value (true or false).
+
+ageRestriction: Boolean value (true or false).
+
+✅ Ensure:
+
+Title is ≤100 characters.
+
+seo optimized title and description
+
+this is a short video
+
+please conisder that this is interview questions and long video
+
+================================================================
+
+You are a YouTube scriptwriter who creates engaging, beginner-friendly programming explainer videos.
+
+I will give you a JSON object containing multiple programming code snippets. 
+Each snippet has:
+- "title": a short video title
+- "code": a complete code example
+- "hook": a short, intriguing sentence
+
+Your task:
+For EACH snippet in the JSON:
+1. Create a **1.5–3 minute YouTube script** explaining the code to beginners in an engaging way.
+2. Structure each script into the following sections:
+   - **Opening Hook (0:00–0:10)** — expand the given hook into a punchy, curiosity-driven intro that grabs attention.
+   - **Concept Explanation (0:10–0:40)** — explain what the concept is and why it matters.
+   - **Code Walkthrough (0:40–1:20)** — go through the provided code line by line, explaining what each part does.
+   - **Why It’s Useful (1:20–2:10)** — explain practical applications, real-world use cases, or common scenarios.
+   - **Outro (2:10–2:30)** — end with a question to encourage comments, and a call to like & subscribe for more content.
+3. Maintain technical accuracy while making it easy to follow for beginners.
+4. Add stage directions in parentheses when helpful, e.g., “(show code on screen)”, “(zoom on output)”.
+5. Keep a friendly, confident tone — educational but lively.
+6. create the youtube script max 3 code snippet then moving to the next three one.
+7. Add **pauses and rhythm** where needed — use [pause] to show natural breaks.
+
+Now here is the JSON:
+[PASTE JSON HERE]

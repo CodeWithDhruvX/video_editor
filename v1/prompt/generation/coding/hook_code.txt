@@ -1,0 +1,44 @@
+I want you to:
+1. Generate 10 viral YouTube Shorts ideas that are focused on following interview Q&A, pitfalls, or coding challenges. Each idea must have:
+
+
+A killer hook in the first 3 seconds.
+A clear structure for 30–60 seconds (problem > solution > quick tip).
+A call-to-action (like comment, share, or watch next).
+2. Suggest 5 click-worthy titles and thumbnails for each idea (SEO + curiosity-based).
+
+3. Provide 1 full 30-second script for the highest potential idea.
+
+4. Optimize retention: ensure fast pacing, pattern interrupts, and rewatch loops.
+
+5. Suggest the best posting time strategy and hashtags to test for maximum reach.
+
+
+===========================================================================
+
+You are to transform the following list of technical interview video ideas into a JSON array of objects.
+
+🎯 Output Format (MUST follow exactly):
+{
+  "snippets": [
+    {
+      "title": "<short descriptive title>",
+      "code": "<Go code snippet, fully self-contained, short (20–25 sec reading), minimal inline comments (1–3 words), highlight pitfall if relevant, include // Output comment>",
+      "hook": "<1-line retention hook>"
+    }
+  ]
+}
+
+📜 Rules for the code:
+- Language: Go (or Python/JavaScript if specified)
+- Must be self-contained, runnable, and short
+- Use clear minimal inline comments
+- Show `// Output: ...` for expected result
+- If there is a pitfall, show Expected vs Actual in comments
+- No external packages unless required by the example
+- Format with proper indentation and escape quotes for JSON
+
+📥 Input list of ideas:
+<PASTE YOUR 10 IDEAS HERE>
+
+Now, output only the JSON — no explanations, no extra text.

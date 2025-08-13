@@ -1,0 +1,174 @@
+You are a senior software engineer and technical interviewer.
+
+I will give you a list of programming questions related to any topic (e.g. arrays, recursion, sorting, OOP, data structures, etc.). These questions may apply to any language (Go, Python, Java, etc.).
+
+Your task is to generate 3 different **coding task prompts** (hooks) per question.
+
+Each hook should:
+- Be a clear, self-contained coding task
+- Require writing 15–30 lines of code
+- Emphasize different aspects of the topic (behavior, performance, edge cases, structure)
+- Be phrased as an interview-style task or coding challenge
+- Be language-agnostic unless specified
+
+Only output the hooks. Format like:
+
+Q1: [original question]  
+– Hook 1  
+– Hook 2  
+– Hook 3
+
+Here is the list of questions:
+{INSERT YOUR QUESTIONS HERE}
+
+
+### 🛡️ **801–820: Security & Authentication**
+
+1. How do you hash passwords securely in Go?
+2. How do you implement HMAC-based authentication in Go?
+3. How do you use JWT securely in Go APIs?
+4. How do you prevent SQL injection in Go?
+5. How do you manage CSRF protection in a Go web app?
+6. How do you handle XSS prevention in Go templates?
+7. How do you implement OAuth 2.0 flows in Go?
+8. How do you encrypt/decrypt sensitive data in Go?
+9. What’s the use of `crypto/rand` vs `math/rand`?
+10. How do you manage TLS certs in Go servers?
+11. How do you validate tokens in Go microservices?
+12. How do you securely store API keys in Go apps?
+13. How do you create and validate secure cookies?
+14. How do you implement role-based access control in Go?
+15. How do you verify digital signatures in Go?
+16. How do you generate a secure random token in Go?
+17. How do you prevent replay attacks with Go?
+18. How do you audit Go applications for security issues?
+19. How do you apply security headers in Go HTTP servers?
+20. How do you secure gRPC endpoints in Go?
+
+=============================================================================
+
+
+
+"Organize the following list of Go security questions into YouTube playlists grouped by topic or viewer intent.
+
+For each playlist:
+
+Give it a clear, keyword-rich title
+
+Add a short description that helps both viewers and the YouTube algorithm understand what the playlist is about
+
+List the relevant questions mapped to that playlist
+
+For each question, write a YouTube-optimized video title that encourages clicks and explains the value clearly
+
+Ensure no question appears in more than two playlists
+
+The output should be structured and ready for direct use in a YouTube content strategy or upload planner
+
+Use this list of questions:
+
+
+Q1: How do you hash passwords securely in Go?
+– Implement a function that registers users with plaintext passwords and stores their hashes using a secure hashing algorithm. Ensure salt and cost are handled properly.
+– Write a function that verifies a user's login attempt using a stored hashed password. Handle incorrect passwords and timing attacks.
+– Create a CLI tool that accepts usernames and passwords, hashes them using bcrypt, and stores the result in a file.
+
+Q2: How do you implement HMAC-based authentication in Go?
+– Write a middleware that validates HMAC signatures on incoming HTTP requests using a shared secret key.
+– Implement a function that signs and verifies messages with HMAC-SHA256, using a constant-time compare to prevent timing attacks.
+– Design an API endpoint that rejects requests without a valid HMAC header and logs suspicious attempts.
+
+Q3: How do you use JWT securely in Go APIs?
+– Implement a JWT authentication middleware that validates the token, checks expiration, and extracts user claims.
+– Write a function to generate signed JWTs for users after login, with custom claims and proper expiry.
+– Create a test suite that fuzzes a JWT validator to ensure tampered tokens are correctly rejected.
+
+Q4: How do you prevent SQL injection in Go?
+– Refactor a vulnerable user login function using string interpolation to use parameterized queries with database/sql.
+– Write a function that searches a user table by username or email and demonstrate it is safe against injection attacks.
+– Simulate a batch user import and ensure all inserts are done safely with transaction and query safety.
+
+Q5: How do you manage CSRF protection in a Go web app?
+– Implement a CSRF token generator and validator for POST forms without relying on third-party packages.
+– Write a middleware that adds CSRF tokens to HTML templates and rejects missing or mismatched ones.
+– Build a minimal form handler that safely processes POST requests with CSRF token verification.
+
+Q6: How do you handle XSS prevention in Go templates?
+– Create a web page using Go’s html/template to safely render user-generated input without escaping manually.
+– Demonstrate the difference between html/template and text/template with potentially malicious content.
+– Implement a feedback submission form and render the stored inputs back, making sure no script tags execute.
+
+Q7: How do you implement OAuth 2.0 flows in Go?
+– Implement the OAuth 2.0 authorization code flow with a third-party provider (mocked), handling the token exchange.
+– Write a handler that redirects to a mock OAuth consent screen and handles the callback with the access token.
+– Build a secure refresh token mechanism and store tokens encrypted in memory or local storage.
+
+Q8: How do you encrypt/decrypt sensitive data in Go?
+– Write a function that encrypts and decrypts a message using AES-GCM with a securely generated nonce.
+– Create a file encryption tool that encrypts user data to disk and decrypts on load.
+– Implement a password-based encryption scheme using PBKDF2 for key derivation and AES for encryption.
+
+Q9: What’s the use of crypto/rand vs math/rand?
+– Implement a secure token generator using both math/rand and crypto/rand, and explain the entropy difference.
+– Write a benchmarking script comparing math/rand and crypto/rand for 1,000 random number generations.
+– Create a function that uses crypto/rand to generate a 128-bit UUID and explain why math/rand would be unsafe.
+
+Q10: How do you manage TLS certs in Go servers?
+– Create an HTTPS server in Go that loads TLS certs from disk and serves a simple hello world page.
+– Implement TLS mutual authentication where the server also verifies a client certificate.
+– Write a utility that rotates TLS certificates on disk and reloads them in a long-running Go server.
+
+Q11: How do you validate tokens in Go microservices?
+– Build a token validation middleware that checks token integrity, expiration, and scope before allowing access.
+– Implement an inter-service token validation function that supports HMAC and RSA-signed tokens.
+– Simulate a microservice receiving a JWT, verifying it with a public key, and extracting role claims.
+
+Q12: How do you securely store API keys in Go apps?
+– Write a function that reads encrypted API keys from environment variables or config files and decrypts them at runtime.
+– Create a secure key vault module in memory that limits exposure and restricts debug logs from leaking secrets.
+– Implement a small CLI that injects API keys at runtime and revokes them after task execution.
+
+Q13: How do you create and validate secure cookies?
+– Implement an HTTP handler that sets a secure, signed, and HTTPOnly session cookie.
+– Write a function to parse and verify signed cookies, rejecting expired or tampered values.
+– Create a login flow that uses cookies to persist a session ID and demonstrate secure cookie flags.
+
+Q14: How do you implement role-based access control in Go?
+– Design a middleware that restricts access to certain endpoints based on roles extracted from JWT claims.
+– Create a function that checks if a user has permission to perform an action based on a role-permission matrix.
+– Implement an in-memory user store with roles and simulate role escalation and revocation.
+
+Q15: How do you verify digital signatures in Go?
+– Write a function that verifies an RSA digital signature for a given message and public key.
+– Create a module that signs and verifies JSON payloads using ECDSA, and returns verification errors clearly.
+– Simulate a client-server exchange where the client signs a message and the server validates the signature.
+
+Q16: How do you generate a secure random token in Go?
+– Implement a token generator that produces 32-byte base64-encoded tokens using crypto/rand.
+– Write a function that creates secure invitation links using time-limited, random tokens.
+– Benchmark your token generator against one using math/rand to demonstrate the security trade-off.
+
+Q17: How do you prevent replay attacks with Go?
+– Create a one-time-use token generator and validator that rejects reused tokens.
+– Implement a nonce-based system that tracks used nonces and timestamps for each request.
+– Write a middleware that validates request timestamps and drops any older than 5 seconds to prevent replay.
+
+Q18: How do you audit Go applications for security issues?
+– Build a static analysis tool that flags insecure uses of exec.Command, os.Open, or hardcoded secrets.
+– Create a logger that captures all failed authentication attempts and writes them to a secure audit log.
+– Write a unit test that scans your Go project for known insecure patterns using go/ast.
+
+Q19: How do you apply security headers in Go HTTP servers?
+– Write middleware that sets security headers like Content-Security-Policy, Strict-Transport-Security, and X-Frame-Options.
+– Create a server that adjusts headers based on environment (dev vs prod) and logs missing headers.
+– Implement a test that validates all HTTP responses include required security headers.
+
+Q20: How do you secure gRPC endpoints in Go?
+– Write a gRPC server that uses TLS for transport security and requires client certs.
+– Implement a gRPC interceptor that validates JWTs before allowing access to any method.
+– Create a gRPC client that securely connects to a TLS-enabled server and sends signed requests.
+
+
+
+
+

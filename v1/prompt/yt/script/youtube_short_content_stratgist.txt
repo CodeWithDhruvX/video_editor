@@ -1,0 +1,102 @@
+You are a YouTube video content strategist and scriptwriter.
+
+🎯 TASK:  
+I will provide you a JSON containing educational slide content (each with a `title`, `content`, and `slide_type`: "text", "code", or "table").
+
+✅ OBJECTIVE:  
+1. First, analyze the JSON and suggest:
+   - If the content fits in **1 short video (≤60 sec)** or needs to be split.
+   - A breakdown of **how many Shorts** or parts are optimal.
+   - The ideal **titles** and **slide groupings** per Short.
+
+2. Then, after I confirm, create the **YouTube Shorts-style script** for each suggested part, using this format:
+   - Hook (0–3s)
+   - Core explainer (3–45s)
+   - Mini-challenge or tip (optional)
+   - Call to action (45–60s)
+   - No robotic tone — speak naturally, like you're mentoring someone 1-on-1.
+    - No unnecessary intros or outros outside of the first/last slide.
+    - Don’t assume prior knowledge — explain everything like it’s Day 1.
+    - End each slide with a **clear takeaway**.
+    - Keep your energy up — your confidence = their attention.
+   - slide object based script create like slide 1=> script , slide 2=> script, slide 3=>script etc...
+   - create the one short scirpt at a one time. after the saying "ok" then go to the next short script
+   - each short script end add **Trigger curiosity** for the next video: like "In the next video...". don't add in the of the last short video
+Keep the script beginner-friendly, energetic, and tailored for developers or tech learners.
+
+Wait for my confirmation before generating the scripts.
+
+
+[
+    {
+      "title": "Introduction to Arrays and Slices",
+      "content": "In Go, **arrays** and **slices** are fundamental data structures used to store collections of elements of the same type. Although they appear similar, they have different behaviors and use cases. Understanding their differences is crucial for writing efficient and idiomatic Go code. Arrays are simple and fixed in size, while slices are more powerful and flexible, built on top of arrays but with additional functionality for dynamic growth and memory management.",
+      "slide_type": "text"
+    },
+    {
+      "title": "What is an Array?",
+      "content": "An array in Go has a **fixed length**, and its size is part of its type. This means `[3]int` and `[4]int` are entirely different types.\n\nArrays are stored in **contiguous memory**, and when passed to functions, they are **copied**.\n\n```go\nvar a [3]int = [3]int{1, 2, 3} // Declare and initialize an array of 3 integers\nfmt.Println(a) // Output: [1 2 3]\n\n// Note: Changing 'a' inside a function won't affect the original array\n```",
+      "slide_type": "code"
+    },
+    {
+      "title": "What is a Slice?",
+      "content": "A slice is built **on top of an array**, but it is dynamically sized. It contains a pointer to the underlying array, its length, and its capacity.\n\nSlices are more commonly used in Go due to their **flexibility** and ability to grow dynamically.\n\n```go\ns := []int{1, 2, 3} // A slice with length 3 and capacity 3\nfmt.Println(s)      // Output: [1 2 3]\n\n// Slices can grow dynamically using append\ns = append(s, 4)\nfmt.Println(s)      // Output: [1 2 3 4]\n```",
+      "slide_type": "code"
+    },
+    {
+      "title": "Key Differences",
+      "content": [
+        {
+          "Array": "Fixed-length sequence of elements",
+          "Feature": "Definition",
+          "Slice": "Dynamic-length, reference to an array"
+        },
+        {
+          "Array": "Size is part of the type",
+          "Feature": "Size",
+          "Slice": "Size can change at runtime"
+        },
+        {
+          "Array": "Stored directly in memory",
+          "Feature": "Memory",
+          "Slice": "References an underlying array"
+        },
+        {
+          "Array": "Less common in practice",
+          "Feature": "Use Case",
+          "Slice": "Preferred for flexibility"
+        },
+        {
+          "Array": "Passed by value (copies entire array)",
+          "Feature": "Function Passing",
+          "Slice": "Passed by reference (points to underlying array)"
+        }
+      ],
+      "slide_type": "table"
+    },
+    {
+      "title": "Array Declaration Example",
+      "content": "This example demonstrates how to declare and access individual elements in an array.\n\nArrays are **indexed starting at 0**, and uninitialized elements default to zero values (for `int`, it's 0).\n\n```go\nvar arr [5]int         // Declare an array of 5 integers\narr[0] = 10            // Assign value to the first element\nfmt.Println(arr)       // Output: [10 0 0 0 0]\n```",
+      "slide_type": "code"
+    },
+    {
+      "title": "Slice Creation Example",
+      "content": "This example shows how to declare a slice and use the `append` function to add elements.\n\nSlices grow automatically, and appending returns a new slice (may point to a new array if capacity is exceeded).\n\n```go\nslice := []int{1, 2, 3, 4, 5} // Create a slice with initial elements\nslice = append(slice, 6)      // Append an element; underlying array may grow\nfmt.Println(slice)            // Output: [1 2 3 4 5 6]\n```",
+      "slide_type": "code"
+    },
+    {
+      "title": "Slicing an Array",
+      "content": "You can create slices **from existing arrays** by slicing syntax `[start:end]`, which includes `start` and excludes `end`.\n\nThe resulting slice shares the same underlying array, so changes to the slice affect the array and vice versa.\n\n```go\narr := [5]int{10, 20, 30, 40, 50} // Define an array\nslice := arr[1:4]                 // Create a slice from index 1 to 3 (not 4)\nfmt.Println(slice)                // Output: [20 30 40]\n```",
+      "slide_type": "code"
+    },
+    {
+      "title": "When to Use What?",
+      "content": "- Use **arrays** when the size is known at compile time and performance optimizations (like avoiding memory allocations) are necessary. They're also helpful when working with low-level system code where control over memory layout is important.\n\n- Use **slices** in most real-world applications due to their flexibility. They allow appending, slicing, and sharing data without unnecessary copying, making them suitable for dynamic datasets like input streams, collections, and API responses.\n\n👉 In idiomatic Go, **slices are favored** because they offer a balance between performance, flexibility, and ease of use. They are used in almost all standard libraries and data processing patterns.",
+      "slide_type": "text"
+    },
+    {
+      "title": "Conclusion",
+      "content": "✅ **Arrays** are fixed-size, value-type collections best suited for specific performance-critical or low-level use cases.\n\n✅ **Slices** are dynamically-sized, reference-type views into arrays that provide powerful tools for managing collections, making them the go-to choice for most Go developers.\n\nUnderstanding the mechanics behind slices — such as how they manage capacity and share underlying arrays — is key to mastering Go and writing high-performance, idiomatic code.",
+      "slide_type": "text"
+    }
+  ]

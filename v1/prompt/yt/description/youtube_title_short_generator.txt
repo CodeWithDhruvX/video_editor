@@ -1,0 +1,94 @@
+[
+    {
+      "title": "Introduction to init() in Go",
+      "content": "**`init()`** is a special function in Go that runs **before the `main()` function**.\n\nIt is commonly used for:\n\n- Package-level initialization\n- Setting up resources or configurations\n- Running code automatically during program startup",
+      "slide_type": "text"
+    },
+    {
+      "title": "When is init() Executed?",
+      "content": "The `init()` function is automatically executed:\n\n- **After all variable declarations** in the package\n- **Before the `main()` function**\n- For each package, **`init()` runs once**\n- Order of execution: **imported packages' `init()` → current package `init()` → `main()`**",
+      "slide_type": "text"
+    },
+    {
+      "title": "init() Syntax Example",
+      
+      "content": "package main\n\nimport \"fmt\"\n\nfunc init() {\n    fmt.Println(\"Init function is running...\")\n}\n\nfunc main() {\n    fmt.Println(\"Main function is running...\")\n}",
+      "slide_type": "code"
+    },
+    {
+      "title": "Multiple init() Functions",
+      "content": "A single Go file or package **can have multiple `init()` functions**. They are executed in the order they appear in the file.",
+      "slide_type": "text"
+    },
+    {
+      "title": "Multiple init() Example",
+      "content": "package main\n\nimport \"fmt\"\n\nfunc init() {\n    fmt.Println(\"Init #1\")\n}\n\nfunc init() {\n    fmt.Println(\"Init #2\")\n}\n\nfunc main() {\n    fmt.Println(\"Main\")\n}",
+      "slide_type": "code"
+    },
+    {
+      "title": "init() vs main()",
+      "content": [
+        {
+          "Function": "init()",
+          "Called By": "Go runtime",
+          "Arguments": "None",
+          "Return Type": "None",
+          "Purpose": "Initialize the package"
+        },
+        {
+          "Function": "main()",
+          "Called By": "Go runtime",
+          "Arguments": "None",
+          "Return Type": "None",
+          "Purpose": "Entry point of the application"
+        }
+      ],
+      "slide_type": "table"
+    },
+    {
+      "title": "Use Cases of init()",
+      "content": "- Loading config files\n- Registering plugins\n- Validating environment variables\n- Setting default values\n- Establishing initial connections",
+      "slide_type": "text"
+    },
+    {
+      "title": "Best Practices for init()",
+      "content": "- Avoid complex logic in `init()`\n- Do not use it for critical business logic\n- Keep `init()` minimal and clear\n- Prefer explicit initialization in `main()` when possible",
+      "slide_type": "text"
+    }
+  ]
+  
+  
+
+"Generate a structured array of json JSON object using above array of json. The object should contain the following fields:
+
+videoFile: Absolute file path of the video (e.g., "C:/Users/YourName/Videos/video.mp4").
+
+title: A catchy title with emojis and keywords (e.g., "🚀 Master YouTube Automation with Python! (Step-by-Step Guide)").
+
+description: A detailed video description with bullet points, emojis, and hashtags. make sure that it will follow youtube description box length
+
+tags: A list of relevant tags related to the content.
+
+categoryName: The category of the video (e.g., "Education").
+
+privacyStatus: Either "private", "public", or "unlisted".
+
+thumbnail: Absolute file path of the thumbnail image (e.g., "C:/Users/YourName/Videos/thumbnail.png").
+
+playlistName: The playlist where this video should be added.
+
+publishAt: Scheduled date and time in "YYYY-MM-DD HH:MM:SS" format.
+
+madeForKids: Boolean value (true or false).
+
+ageRestriction: Boolean value (true or false).
+
+✅ Ensure:
+
+Title is ≤100 characters.
+
+seo optimized title and description
+
+this is a short video
+
+please conisder that this is interview questions

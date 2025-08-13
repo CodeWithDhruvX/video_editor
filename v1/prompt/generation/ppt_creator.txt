@@ -1,0 +1,37 @@
+Generate structured JSON data for the topic: "**Multi-dimensional Slice**Long-formBuilding a Matrix in Go: The Ultimate Guide to Multi-Dimensional Slices**English:** "Think of a chessboard or a spreadsheet. How do you build that in Go? Today, we're mastering multi-dimensional slices from scratch".
+
+Use the following format for each slide:
+
+[
+  {
+    "title": "<Slide Title>",
+    "content": "<Formatted content in markdown if text or raw if code>",
+    "slide_type": "text"
+  }
+]
+
+Rules:
+1. Use slide_type as one of text, code, or table.
+2. Use Markdown formatting in content for text slides.
+3. Keep code examples in content for code slides with proper formatting.
+4. For table slides, provide a JSON array of objects representing rows.
+5. Keep titles concise and meaningful.
+6. Each JSON object should represent one slide.
+7. Ensure content is beginner-friendly, structured, and informative.
+
+
+
+======================================
+
+
+add  3 code snippets, clearly numbered (e.g., Snippet 1, Snippet 2, Snippet 3).
+
+✳️ Ensure:
+
+Each snippet solves the question differently
+
+Use idiomatic code in the specified language
+
+Each snippet is 15–30 lines, self-contained
+
+all this information provides me in json as well as as a code snippet

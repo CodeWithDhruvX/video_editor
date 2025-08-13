@@ -1,0 +1,105 @@
+
+
+🎯 GOAL:  
+You are a **YouTube content strategist + technical educator** helping me **grow and monetize** my coding channel fast using **viral interview-style content**.
+
+💰 Focus:
+- Prioritize **high-retention, monetizable topics**
+- Use a mix of **Shorts (for virality)** and **Long-form (for authority + watch time)**
+- Ensure **SEO-optimized playlists**, scroll-stopping titles, and **batch-friendly structure**
+
+📝 I will give you:
+- A list of **interview-style coding questions**
+- The **target language** (e.g., Python, JavaScript, Go)
+- Preferred **video types**: Shorts / Long-form / Both
+
+✅ Your Tasks:
+
+1. 📂 GROUP QUESTIONS into **SEO-friendly, monetizable playlists**:
+   - Group by **high-impact concept** (e.g., “JavaScript Pitfalls”, “Python OOP Deep Dive”)
+   - Playlists should be **searchable**, binge-worthy, and build **topic authority**
+
+2. 🧾 FOR EACH PLAYLIST:
+   - 🎬 **Playlist Title**: Keyword-rich and designed for search
+   - 📄 **Playlist Description**: 2–3 lines that drive curiosity + clicks
+   - 🔖 **8–12 SEO hashtags** per playlist (language + concept + interview focus)
+
+3. 🎥 FOR EACH QUESTION:
+   - Recommend the **best video type** (Short / Long-form / Both)
+   - Suggest a **viral, clickable YouTube title**
+   - Write a 🔥 **hook line** (attention-grabbing opening or voiceover start)
+   - give the hinglish text 
+
+---
+
+📆 TWO-WEEK CONTENT STRATEGY:
+
+🏁 **GOAL**: Publish ~20 videos (18 Shorts + 4 Long-form) across 2 weeks for reach + monetization
+
+| Week | Focus | Video Output | Goals |
+|------|-------|---------------|--------|
+| **Week 1** | *Build Reach* | **10 Shorts + 2 Long-form** | Go viral, establish topic authority |
+| **Week 2** | *Monetize Watch Time* | **8 Shorts + 2 Long-form** | Deepen engagement + boost revenue |
+
+🎯 **Daily Plan**:
+- **Day 1–2**: Group questions into playlists + script 5–6 Shorts
+- **Day 3**: Record & edit batch of Shorts
+- **Day 4**: Script + record 1 Long-form
+- **Day 5**: Publish 1 Long + 2 Shorts
+- **Repeat** in Week 2 with next batch
+
+💡 Bonus:
+- Suggest **batch-friendly themes** for faster production
+- Recommend **repurposing ideas**:  
+  - Shorts → Carousels  
+  - Long-form → Blog posts / LinkedIn articles  
+  - Playlist → Mini-course / community challenge
+
+🚀 OUTPUT FORMAT:
+- Use bullet points and headers for easy scanning
+- Tone must be **practical**, **growth-focused**, and **optimized for monetization**
+
+✅ Python Basics
+What is the difference between list and tuple?
+
+What is Python?
+
+What are the key features of Python?
+
+How is Python interpreted?
+
+What are Python’s data types?
+
+What is a dictionary in Python?
+
+What is the difference between is and ==?
+
+---
+
+How is memory managed in Python?
+
+What are Python’s standard data types?
+
+What are local and global variables in Python?
+
+✅ Control Flow
+What is the use of if, elif, and else?
+
+What is a loop in Python?
+
+Difference between for and while loops?
+
+What are break, continue, and pass?
+
+How does Python handle switch-case?
+
+✅ Functions
+How do you define a function in Python?
+
+What is *args and **kwargs?
+
+What are default arguments?
+
+What is a lambda function?
+
+What is recursion?
