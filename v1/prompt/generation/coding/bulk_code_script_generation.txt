@@ -62,7 +62,6 @@ For EACH snippet in the JSON:
 5. Keep a friendly, confident tone — educational but lively.
 6. create the youtube script max 3 code snippet then moving to the next three one.
 7. Add **pauses and rhythm** where needed — use [pause] to show natural breaks.
-8. Topic title must folllow with [numberic number]. topic_name
+8. Topic title must folllow with numberic number. topic_name
 
 Now here is the JSON:
-<json_text_here>
