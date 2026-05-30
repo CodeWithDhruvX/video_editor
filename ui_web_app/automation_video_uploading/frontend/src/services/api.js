@@ -58,6 +58,10 @@ export const uploaderApi = {
   // Info
   getPlaylists: (channel_id) => api.get(`/uploader/playlists?channel_id=${channel_id}`),
   getCategories: () => api.get('/uploader/categories'),
+
+  // Processed Videos
+  getProcessedVideos: () => api.get('/uploader/processed-videos'),
+  deleteProcessedVideos: (paths) => api.post('/uploader/delete-processed-videos', { paths }),
 };
 
 // ─── Health ───

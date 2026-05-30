@@ -16,6 +16,8 @@ from models.schemas import (
     JobStatusResponse, JobStatus, VideoUploadRequest,
     BatchUploadMetadata, UploadJobResponse, AuthStatusResponse, PlaylistInfo
 )
+from pydantic import BaseModel
+
 from services.youtube_uploader import (
     get_authenticated_service, start_oauth_flow, complete_oauth_flow,
     get_all_auth_statuses, get_all_playlists, upload_video, upload_batch,
@@ -33,7 +35,14 @@ _oauth_flows: Dict[str, Any] = {}  # state -> flow
 UPLOAD_DIR = Path("uploads/yt")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+OUTPUTS_DIR = Path("outputs")
+OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+
 REDIRECT_URI = "http://localhost:8000/uploader/auth/callback"
+
+class DeleteProcessedVideosRequest(BaseModel):
+    paths: list[str]
+
 
 
 # ─────────────────────────── WebSocket ───────────────────────────
@@ -276,7 +285,7 @@ async def upload_batch_endpoint(
 @router.post("/upload/batch-with-files", response_model=UploadJobResponse)
 async def upload_batch_with_files(
     channel_id: str = Form(...),
-    videos: list[UploadFile] = File(...),
+    videos: list[UploadFile] = File(None),
     thumbnails: list[UploadFile] = File(None),
     metadata_json: str = Form(...),
 ):
@@ -284,7 +293,13 @@ async def upload_batch_with_files(
     Batch upload with actual video files uploaded through the browser.
     Metadata JSON maps filenames to upload details.
     """
+    if videos is None:
+        videos = []
+    if thumbnails is None:
+        thumbnails = []
+
     job_id = str(uuid.uuid4())
+
     job_dir = UPLOAD_DIR / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
 
@@ -388,3 +403,57 @@ async def list_categories():
     """Return YouTube category map."""
     from models.schemas import CATEGORY_MAP
     return [{"name": k, "id": v} for k, v in CATEGORY_MAP.items()]
+
+
+@router.get("/processed-videos")
+async def get_processed_videos():
+    """List all processed videos from the backend outputs directory."""
+    videos = []
+    if not OUTPUTS_DIR.exists():
+        return videos
+    
+    # Supported formats
+    extensions = {".mp4", ".mov", ".avi", ".mkv"}
+    for file_path in OUTPUTS_DIR.rglob("*"):
+        if file_path.is_file() and file_path.suffix.lower() in extensions:
+            stat = file_path.stat()
+            videos.append({
+                "name": file_path.name,
+                "path": str(file_path.absolute()),
+                "size": stat.st_size,
+                "job_id": file_path.parent.name,
+                "created_at": stat.st_mtime
+            })
+    # Sort by creation time, newest first
+    videos.sort(key=lambda x: x["created_at"], reverse=True)
+    return videos
+
+
+@router.post("/delete-processed-videos")
+async def delete_processed_videos(req: DeleteProcessedVideosRequest):
+    """Delete multiple processed videos by their absolute paths. If parent folder becomes empty, delete it too."""
+    deleted = 0
+    errors = []
+    for p in req.paths:
+        try:
+            path = Path(p)
+            # Basic security check to ensure we only delete within outputs
+            if OUTPUTS_DIR.resolve() in path.resolve().parents:
+                if path.exists() and path.is_file():
+                    parent_dir = path.parent
+                    path.unlink()
+                    deleted += 1
+                    
+                    # Check if parent directory is now empty
+                    if parent_dir != OUTPUTS_DIR:
+                        # try to remove, rmdir only works if directory is empty
+                        try:
+                            parent_dir.rmdir()
+                        except OSError:
+                            pass # Directory not empty or cannot be removed
+            else:
+                errors.append(f"Path not allowed: {p}")
+        except Exception as e:
+            errors.append(f"Failed to delete {p}: {str(e)}")
+            
+    return {"message": f"Deleted {deleted} files.", "errors": errors}
