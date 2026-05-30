@@ -47,6 +47,7 @@ export default function EditorPage() {
   const [enableBorders, setEnableBorders] = useState(true);
   const [borderColor, setBorderColor] = useState('#000000');
   const [borderThickness, setBorderThickness] = useState(3);
+  const [subtitlePosition, setSubtitlePosition] = useState('bottom');
   const [randomFonts, setRandomFonts] = useState(true);
   const [randomColors, setRandomColors] = useState(true);
   const [randomSizes, setRandomSizes] = useState(true);
@@ -111,6 +112,7 @@ export default function EditorPage() {
         enable_borders: enableBorders,
         border_color: borderColor,
         border_thickness: borderThickness,
+        position: subtitlePosition,
         mixed_font_settings: {
           enable_random_fonts: randomFonts,
           enable_random_colors: randomColors,
@@ -355,20 +357,34 @@ export default function EditorPage() {
               </div>
             )}
 
-            {(subtitleMode === 'single' || subtitleMode === 'multiple') && (
-              <div className="form-group" style={{ marginTop: '0.75rem' }}>
-                <label className="form-label">Font Family</label>
+            <div className="grid-2" style={{ gap: '1rem', marginTop: '0.75rem' }}>
+              {(subtitleMode === 'single' || subtitleMode === 'multiple') && (
+                <div className="form-group">
+                  <label className="form-label">Font Family</label>
+                  <select
+                    className="form-select"
+                    value={subtitleFont}
+                    onChange={(e) => setSubtitleFont(e.target.value)}
+                  >
+                    {FONT_FAMILIES.map((font) => (
+                      <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="form-group">
+                <label className="form-label">Position</label>
                 <select
                   className="form-select"
-                  value={subtitleFont}
-                  onChange={(e) => setSubtitleFont(e.target.value)}
+                  value={subtitlePosition}
+                  onChange={(e) => setSubtitlePosition(e.target.value)}
                 >
-                  {FONT_FAMILIES.map((font) => (
-                    <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>
-                  ))}
+                  <option value="bottom">Bottom (Default)</option>
+                  <option value="top">Top</option>
+                  <option value="center">Center</option>
                 </select>
               </div>
-            )}
+            </div>
 
             <div className="grid-2" style={{ gap: '1rem', marginTop: '0.5rem' }}>
               <div className="form-group">

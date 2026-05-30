@@ -122,15 +122,26 @@ async def transcribe_video(
 
 # ─────────────────────────── ASS Subtitle Generation ───────────────────────────
 
-def build_ass_header(subtitle_color: str, subtitle_size: int, font_family: str, border_color: str, border_thickness: int) -> str:
+def build_ass_header(subtitle_color: str, subtitle_size: int, font_family: str, border_color: str, border_thickness: int, position: str = "bottom") -> str:
     ass_color = hex_to_ass_color(subtitle_color)
     border_ass_color = hex_to_ass_color(border_color)
+    
+    if position == "top":
+        alignment = 8
+        margin_v = 90
+    elif position == "center":
+        alignment = 5
+        margin_v = 0
+    else:  # bottom
+        alignment = 2
+        margin_v = 90
+
     return f"""[Script Info]
 ScriptType: v4.00+
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,{font_family},{subtitle_size},{ass_color},&H00FFFFFF,{border_ass_color},&H00000000,-1,0,0,0,100,100,0,0,1,{border_thickness},0,2,30,30,90,1
+Style: Default,{font_family},{subtitle_size},{ass_color},&H00FFFFFF,{border_ass_color},&H00000000,-1,0,0,0,100,100,0,0,1,{border_thickness},0,{alignment},30,30,{margin_v},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -165,10 +176,11 @@ def generate_ass_subtitles(
     subtitle_size = subtitle_settings.get("size", 24)
     border_color = subtitle_settings.get("border_color", "#000000")
     border_thickness = subtitle_settings.get("border_thickness", 3)
+    position = subtitle_settings.get("position", "bottom")
     words_count = subtitle_settings.get("words_count", 3)
     mixed_settings = subtitle_settings.get("mixed_font_settings", {})
 
-    header = build_ass_header(subtitle_color, subtitle_size, font_family, border_color, border_thickness)
+    header = build_ass_header(subtitle_color, subtitle_size, font_family, border_color, border_thickness, position)
     events = []
 
     if mode == "single":

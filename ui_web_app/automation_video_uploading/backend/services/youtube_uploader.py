@@ -25,7 +25,8 @@ SCOPES = [
     "https://www.googleapis.com/auth/youtube.force-ssl",
 ]
 
-TOKEN_FILE = "token.json"
+TOKENS_DIR = Path("tokens")
+TOKENS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Type alias for progress callbacks
 ProgressCallback = Callable[[str, str, Optional[float]], Awaitable[None]]
@@ -33,33 +34,33 @@ ProgressCallback = Callable[[str, str, Optional[float]], Awaitable[None]]
 
 # ─────────────────────────── Auth Helpers ───────────────────────────
 
-def get_authenticated_service(client_secret_path: str) -> object:
+def get_authenticated_service(client_secret_path: str, token_path: str) -> object:
     """
     Build and return an authenticated YouTube service object.
-    Handles token refresh and OAuth flow via browser redirect.
+    Handles token refresh.
     """
     creds = None
 
-    if os.path.exists(TOKEN_FILE):
+    if os.path.exists(token_path):
         try:
-            creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
+            creds = Credentials.from_authorized_user_file(token_path, SCOPES)
         except Exception:
-            if os.path.exists(TOKEN_FILE):
-                os.remove(TOKEN_FILE)
+            if os.path.exists(token_path):
+                os.remove(token_path)
             creds = None
 
     if creds and creds.expired and creds.refresh_token:
         try:
             creds.refresh(Request())
-            with open(TOKEN_FILE, "w") as token:
+            with open(token_path, "w") as token:
                 token.write(creds.to_json())
         except Exception:
             creds = None
-            if os.path.exists(TOKEN_FILE):
-                os.remove(TOKEN_FILE)
+            if os.path.exists(token_path):
+                os.remove(token_path)
 
     if not creds or not creds.valid:
-        raise RuntimeError("Not authenticated. Please complete OAuth flow first.")
+        raise RuntimeError(f"Not authenticated for {token_path}. Please complete OAuth flow first.")
 
     return build("youtube", "v3", credentials=creds)
 
@@ -77,35 +78,74 @@ def start_oauth_flow(client_secret_path: str, redirect_uri: str) -> tuple[str, o
     return auth_url, flow
 
 
-def complete_oauth_flow(flow: object, auth_code: str) -> None:
+def complete_oauth_flow(flow: object, auth_code: str) -> dict:
     """
-    Exchange auth code for credentials and save to token.json.
+    Exchange auth code for credentials, fetch channel info, and save to tokens dir.
+    Returns dict with channel_id and channel_name.
     """
     flow.fetch_token(code=auth_code)
     creds = flow.credentials
-    with open(TOKEN_FILE, "w") as token:
+    
+    # Temporarily build service to get channel ID
+    youtube = build("youtube", "v3", credentials=creds)
+    ch = youtube.channels().list(part="snippet", mine=True).execute()
+    items = ch.get("items", [])
+    
+    if not items:
+        raise RuntimeError("No YouTube channel found for this Google account.")
+        
+    channel_id = items[0]["id"]
+    channel_name = items[0]["snippet"]["title"]
+    
+    token_path = TOKENS_DIR / f"{channel_id}.json"
+    meta_path = TOKENS_DIR / f"{channel_id}_meta.json"
+    
+    with open(token_path, "w") as token:
         token.write(creds.to_json())
+        
+    with open(meta_path, "w") as meta:
+        json.dump({"channel_id": channel_id, "channel_name": channel_name}, meta)
+        
+    return {"channel_id": channel_id, "channel_name": channel_name}
 
 
-def check_auth_status() -> dict:
-    """Return authentication status dict."""
-    if not os.path.exists(TOKEN_FILE):
-        return {"authenticated": False, "channel_name": None, "message": "No token found. Please authenticate."}
-    try:
-        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
-        if creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            with open(TOKEN_FILE, "w") as token:
-                token.write(creds.to_json())
-        if creds.valid:
-            youtube = build("youtube", "v3", credentials=creds)
-            ch = youtube.channels().list(part="snippet", mine=True).execute()
-            items = ch.get("items", [])
-            name = items[0]["snippet"]["title"] if items else "Unknown"
-            return {"authenticated": True, "channel_name": name, "message": "Authenticated"}
-        return {"authenticated": False, "channel_name": None, "message": "Credentials expired. Re-authenticate."}
-    except Exception as e:
-        return {"authenticated": False, "channel_name": None, "message": str(e)}
+def get_all_auth_statuses() -> dict:
+    """Return authentication status for all connected channels."""
+    channels = []
+    
+    if not TOKENS_DIR.exists():
+        return {"authenticated": False, "channels": [], "message": "No tokens directory."}
+        
+    for meta_file in TOKENS_DIR.glob("*_meta.json"):
+        channel_id = meta_file.stem.replace("_meta", "")
+        token_path = TOKENS_DIR / f"{channel_id}.json"
+        
+        if not token_path.exists():
+            continue
+            
+        try:
+            with open(meta_file, "r") as f:
+                meta = json.load(f)
+                
+            creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
+            if creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+                with open(token_path, "w") as token:
+                    token.write(creds.to_json())
+                    
+            if creds.valid:
+                channels.append({
+                    "channel_id": meta.get("channel_id", channel_id),
+                    "channel_name": meta.get("channel_name", "Unknown")
+                })
+        except Exception as e:
+            # Skip invalid tokens or metadata
+            print(f"Error checking token {channel_id}: {e}")
+            continue
+            
+    if channels:
+        return {"authenticated": True, "channels": channels, "message": "Authenticated"}
+    return {"authenticated": False, "channels": [], "message": "No valid tokens found. Please authenticate."}
 
 
 # ─────────────────────────── Time Conversion ───────────────────────────

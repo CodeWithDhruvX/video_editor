@@ -87,9 +87,9 @@ function AuthPanel({ authStatus, onStatusChange }) {
     }
   };
 
-  const logout = async () => {
-    await uploaderApi.logout();
-    onStatusChange({ authenticated: false, message: 'Logged out' });
+  const logout = async (channelId) => {
+    await uploaderApi.logout(channelId);
+    refreshStatus();
   };
 
   return (
@@ -98,7 +98,7 @@ function AuthPanel({ authStatus, onStatusChange }) {
         <div className="card-icon" style={{ background: 'rgba(245,158,11,0.15)' }}>🔐</div>
         <div>
           <div className="card-title">YouTube Authentication</div>
-          <div className="card-subtitle">Connect your Google account</div>
+          <div className="card-subtitle">Manage your connected Google accounts</div>
         </div>
       </div>
 
@@ -108,44 +108,54 @@ function AuthPanel({ authStatus, onStatusChange }) {
       >
         {authStatus?.authenticated ? '✅' : '❌'}
         {authStatus?.authenticated
-          ? ` Connected as: ${authStatus.channel_name || 'Unknown'}`
+          ? ` Connected Channels: ${authStatus.channels?.length || 0}`
           : ` Not connected — ${authStatus?.message || ''}`}
       </div>
 
-      {!authStatus?.authenticated && (
-        <>
-          <div className="form-group">
-            <label className="form-label">Step 1: Upload client_secret.json</label>
-            <FileDropzone
-              accept=".json"
-              icon="🔑"
-              title="Drop client_secret.json here"
-              hint="or click to browse"
-              acceptLabel="JSON files only"
-              showList
-              onFiles={(arr) => setSecretFile(arr[0] || null)}
-            />
+      {authStatus?.authenticated && authStatus.channels && authStatus.channels.length > 0 && (
+        <div style={{ marginBottom: '1rem' }}>
+          <label className="form-label">Connected Channels</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {authStatus.channels.map((channel) => (
+              <div key={channel.channel_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-sm)' }}>
+                <div>
+                  <strong>{channel.channel_name}</strong>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {channel.channel_id}</div>
+                </div>
+                <button className="btn btn-ghost btn-sm" onClick={() => logout(channel.channel_id)}>🚪 Logout</button>
+              </div>
+            ))}
           </div>
-          <div className="row" style={{ marginTop: '0.5rem' }}>
-            <button
-              className="btn btn-secondary"
-              onClick={uploadSecret}
-              disabled={!secretFile || uploading}
-            >
-              {uploading ? '⏳ Uploading…' : '📤 Upload Secret'}
-            </button>
-            <button className="btn btn-primary" onClick={startAuth}>
-              🔗 Connect to YouTube
-            </button>
-          </div>
-        </>
+        </div>
       )}
+
+      <div className="form-group">
+        <label className="form-label">{authStatus?.authenticated ? "Connect Another Account (Requires client_secret.json)" : "Step 1: Upload client_secret.json"}</label>
+        <FileDropzone
+          accept=".json"
+          icon="🔑"
+          title="Drop client_secret.json here"
+          hint="or click to browse"
+          acceptLabel="JSON files only"
+          showList
+          onFiles={(arr) => setSecretFile(arr[0] || null)}
+        />
+      </div>
+      <div className="row" style={{ marginTop: '0.5rem' }}>
+        <button
+          className="btn btn-secondary"
+          onClick={uploadSecret}
+          disabled={!secretFile || uploading}
+        >
+          {uploading ? '⏳ Uploading…' : '📤 Upload Secret'}
+        </button>
+        <button className="btn btn-primary" onClick={startAuth}>
+          🔗 Connect to YouTube
+        </button>
+      </div>
 
       <div className="row" style={{ marginTop: '0.75rem' }}>
         <button className="btn btn-ghost btn-sm" onClick={refreshStatus}>🔄 Refresh Status</button>
-        {authStatus?.authenticated && (
-          <button className="btn btn-ghost btn-sm" onClick={logout}>🚪 Logout</button>
-        )}
       </div>
 
       {msg && (
@@ -158,7 +168,7 @@ function AuthPanel({ authStatus, onStatusChange }) {
 }
 
 // ─── Single Upload Form ───
-function SingleUploadTab({ authStatus }) {
+function SingleUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   const [videoFile, setVideoFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [title, setTitle] = useState('');
@@ -179,6 +189,7 @@ function SingleUploadTab({ authStatus }) {
   const { logs, progress, status, reset } = useWebSocket(jobId, 'uploader');
 
   const submit = async () => {
+    if (!activeChannelId) return setError('Please select a YouTube channel');
     if (!videoFile) return setError('Please select a video file');
     if (!title.trim()) return setError('Title is required');
     setError('');
@@ -197,6 +208,7 @@ function SingleUploadTab({ authStatus }) {
     };
 
     const fd = new FormData();
+    fd.append('channel_id', activeChannelId);
     fd.append('video_file', videoFile);
     if (thumbnail) fd.append('thumbnail', thumbnail);
     fd.append('metadata_json', JSON.stringify(metadata));
@@ -358,6 +370,21 @@ function SingleUploadTab({ authStatus }) {
               ⚠️ Please authenticate with YouTube first (Auth tab)
             </div>
           )}
+          {authStatus?.authenticated && (
+            <div className="form-group">
+              <label className="form-label">Target Channel</label>
+              <select 
+                className="form-select" 
+                value={activeChannelId} 
+                onChange={(e) => setActiveChannelId(e.target.value)}
+              >
+                <option value="">-- Select Channel --</option>
+                {authStatus?.channels?.map(c => (
+                  <option key={c.channel_id} value={c.channel_id}>{c.channel_name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {error && (
             <div style={{ padding: '0.75rem', background: 'rgba(239,68,68,0.08)', borderRadius: 'var(--radius-sm)', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(239,68,68,0.2)' }}>
               ⚠️ {error}
@@ -367,7 +394,7 @@ function SingleUploadTab({ authStatus }) {
             className="btn btn-primary btn-lg"
             style={{ width: '100%' }}
             onClick={submit}
-            disabled={isSubmitting || status === 'running' || !authStatus?.authenticated}
+            disabled={isSubmitting || status === 'running' || !authStatus?.authenticated || !activeChannelId}
           >
             {isSubmitting || status === 'running' ? '⏳ Uploading…' : '🚀 Upload Video'}
           </button>
@@ -379,7 +406,7 @@ function SingleUploadTab({ authStatus }) {
 }
 
 // ─── Batch Upload Tab ───
-function BatchUploadTab({ authStatus }) {
+function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   const [videos, setVideos] = useState([]);
   const [metadataFile, setMetadataFile] = useState(null);
   const [metadataPreview, setMetadataPreview] = useState(null);
@@ -400,6 +427,7 @@ function BatchUploadTab({ authStatus }) {
   };
 
   const submit = async () => {
+    if (!activeChannelId) return setError('Select a YouTube channel');
     if (videos.length === 0) return setError('Select at least one video');
     if (!metadataFile) return setError('Select a metadata JSON file');
     setError('');
@@ -407,6 +435,7 @@ function BatchUploadTab({ authStatus }) {
     reset();
 
     const fd = new FormData();
+    fd.append('channel_id', activeChannelId);
     videos.forEach((v) => fd.append('videos', v));
     fd.append('metadata_json', await metadataFile.text());
 
@@ -523,6 +552,21 @@ function BatchUploadTab({ authStatus }) {
               ⚠️ Please authenticate with YouTube first
             </div>
           )}
+          {authStatus?.authenticated && (
+            <div className="form-group">
+              <label className="form-label">Target Channel</label>
+              <select 
+                className="form-select" 
+                value={activeChannelId} 
+                onChange={(e) => setActiveChannelId(e.target.value)}
+              >
+                <option value="">-- Select Channel --</option>
+                {authStatus?.channels?.map(c => (
+                  <option key={c.channel_id} value={c.channel_id}>{c.channel_name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {error && (
             <div style={{ padding: '0.75rem', background: 'rgba(239,68,68,0.08)', borderRadius: 'var(--radius-sm)', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(239,68,68,0.2)' }}>
               ⚠️ {error}
@@ -532,7 +576,7 @@ function BatchUploadTab({ authStatus }) {
             className="btn btn-primary btn-lg"
             style={{ width: '100%' }}
             onClick={submit}
-            disabled={isSubmitting || status === 'running' || !authStatus?.authenticated}
+            disabled={isSubmitting || status === 'running' || !authStatus?.authenticated || !activeChannelId}
           >
             {isSubmitting || status === 'running'
               ? `⏳ Uploading… (${Math.round(progress)}%)`
@@ -549,10 +593,16 @@ function BatchUploadTab({ authStatus }) {
 export default function UploaderPage() {
   const [activeTab, setActiveTab] = useState('single');
   const [authStatus, setAuthStatus] = useState(null);
+  const [activeChannelId, setActiveChannelId] = useState('');
 
   useEffect(() => {
     uploaderApi.getAuthStatus()
-      .then((res) => setAuthStatus(res.data))
+      .then((res) => {
+        setAuthStatus(res.data);
+        if (res.data.channels && res.data.channels.length > 0) {
+          setActiveChannelId(res.data.channels[0].channel_id);
+        }
+      })
       .catch(() => setAuthStatus({ authenticated: false, message: 'Cannot reach backend' }));
   }, []);
 
@@ -586,8 +636,8 @@ export default function UploaderPage() {
           <AuthPanel authStatus={authStatus} onStatusChange={setAuthStatus} />
         </div>
       )}
-      {activeTab === 'single' && <SingleUploadTab authStatus={authStatus} />}
-      {activeTab === 'batch' && <BatchUploadTab authStatus={authStatus} />}
+      {activeTab === 'single' && <SingleUploadTab authStatus={authStatus} activeChannelId={activeChannelId} setActiveChannelId={setActiveChannelId} />}
+      {activeTab === 'batch' && <BatchUploadTab authStatus={authStatus} activeChannelId={activeChannelId} setActiveChannelId={setActiveChannelId} />}
     </div>
   );
 }

@@ -10,6 +10,7 @@ if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 import os
+import time
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -21,6 +22,20 @@ from routers.uploader import router as uploader_router
 
 # ─────────────────────────── App Setup ───────────────────────────
 
+def cleanup_old_tokens():
+    tokens_dir = Path("tokens")
+    if not tokens_dir.exists():
+        return
+    current_time = time.time()
+    five_days_in_seconds = 5 * 24 * 60 * 60
+    for file_path in tokens_dir.glob("*.json"):
+        try:
+            if current_time - file_path.stat().st_mtime > five_days_in_seconds:
+                os.remove(file_path)
+                print(f"Cleaned up old token file: {file_path}")
+        except Exception as e:
+            print(f"Failed to cleanup {file_path}: {e}")
+
 app = FastAPI(
     title="Automation Video Editor & Uploader API",
     description="REST API + WebSocket backend for the Video Editor and YouTube Uploader web app.",
@@ -28,6 +43,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+@app.on_event("startup")
+async def startup_event():
+    cleanup_old_tokens()
 
 # CORS — allow React dev server
 app.add_middleware(

@@ -18,7 +18,8 @@ from models.schemas import (
 )
 from services.youtube_uploader import (
     get_authenticated_service, start_oauth_flow, complete_oauth_flow,
-    check_auth_status, get_all_playlists, upload_video, upload_batch
+    get_all_auth_statuses, get_all_playlists, upload_video, upload_batch,
+    TOKENS_DIR
 )
 
 router = APIRouter(prefix="/uploader", tags=["uploader"])
@@ -127,15 +128,19 @@ async def auth_callback(code: str, state: Optional[str] = None):
 @router.get("/auth/status", response_model=AuthStatusResponse)
 async def auth_status():
     """Check current YouTube authentication status."""
-    result = check_auth_status()
+    result = get_all_auth_statuses()
     return AuthStatusResponse(**result)
 
 
 @router.delete("/auth/logout")
-async def logout():
-    """Remove stored token to force re-authentication."""
-    if os.path.exists("token.json"):
-        os.remove("token.json")
+async def logout(channel_id: str):
+    """Remove stored token to force re-authentication for a specific channel."""
+    token_path = TOKENS_DIR / f"{channel_id}.json"
+    meta_path = TOKENS_DIR / f"{channel_id}_meta.json"
+    if token_path.exists():
+        token_path.unlink()
+    if meta_path.exists():
+        meta_path.unlink()
     return {"message": "Logged out successfully"}
 
 
@@ -143,6 +148,7 @@ async def logout():
 
 @router.post("/upload/single", response_model=UploadJobResponse)
 async def upload_single(
+    channel_id: str = Form(...),
     video_file: UploadFile = File(...),
     thumbnail: UploadFile = File(None),
     metadata_json: str = Form(...),
@@ -188,7 +194,8 @@ async def upload_single(
 
     async def _run():
         try:
-            youtube = get_authenticated_service("client_secret.json")
+            token_path = str(TOKENS_DIR / f"{channel_id}.json")
+            youtube = get_authenticated_service("client_secret.json", token_path)
 
             async def cb(msg_type, message, progress):
                 await _send_ws(job_id, msg_type, message, progress)
@@ -209,6 +216,7 @@ async def upload_single(
 
 @router.post("/upload/batch", response_model=UploadJobResponse)
 async def upload_batch_endpoint(
+    channel_id: str = Form(...),
     metadata_file: UploadFile = File(...),
     videos_dir: str = Form(...),
 ):
@@ -234,7 +242,8 @@ async def upload_batch_endpoint(
 
     async def _run():
         try:
-            youtube = get_authenticated_service("client_secret.json")
+            token_path = str(TOKENS_DIR / f"{channel_id}.json")
+            youtube = get_authenticated_service("client_secret.json", token_path)
 
             async def cb(msg_type, message, progress):
                 await _send_ws(job_id, msg_type, message, progress)
@@ -254,6 +263,7 @@ async def upload_batch_endpoint(
 
 @router.post("/upload/batch-with-files", response_model=UploadJobResponse)
 async def upload_batch_with_files(
+    channel_id: str = Form(...),
     videos: list[UploadFile] = File(...),
     thumbnails: list[UploadFile] = File(None),
     metadata_json: str = Form(...),
@@ -309,7 +319,8 @@ async def upload_batch_with_files(
 
     async def _run():
         try:
-            youtube = get_authenticated_service("client_secret.json")
+            token_path = str(TOKENS_DIR / f"{channel_id}.json")
+            youtube = get_authenticated_service("client_secret.json", token_path)
 
             async def cb(msg_type, message, progress):
                 await _send_ws(job_id, msg_type, message, progress)
@@ -342,10 +353,11 @@ async def get_upload_status(job_id: str):
 
 
 @router.get("/playlists")
-async def list_playlists():
+async def list_playlists(channel_id: str):
     """List user's YouTube playlists."""
     try:
-        youtube = get_authenticated_service("client_secret.json")
+        token_path = str(TOKENS_DIR / f"{channel_id}.json")
+        youtube = get_authenticated_service("client_secret.json", token_path)
         playlists = get_all_playlists(youtube)
         return playlists
     except RuntimeError as e:

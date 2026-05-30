@@ -36,7 +36,7 @@ export const uploaderApi = {
   },
   startAuth: () => api.get('/uploader/auth/start'),
   getAuthStatus: () => api.get('/uploader/auth/status'),
-  logout: () => api.delete('/uploader/auth/logout'),
+  logout: (channel_id) => api.delete(`/uploader/auth/logout?channel_id=${channel_id}`),
 
   // Upload
   uploadSingle: (formData) =>
@@ -52,7 +52,7 @@ export const uploaderApi = {
   getStatus: (jobId) => api.get(`/uploader/status/${jobId}`),
 
   // Info
-  getPlaylists: () => api.get('/uploader/playlists'),
+  getPlaylists: (channel_id) => api.get(`/uploader/playlists?channel_id=${channel_id}`),
   getCategories: () => api.get('/uploader/categories'),
 };
 

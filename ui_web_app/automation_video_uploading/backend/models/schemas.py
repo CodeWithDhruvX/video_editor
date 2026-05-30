@@ -17,6 +17,12 @@ class SubtitleMode(str, Enum):
     mixed = "mixed"
 
 
+class SubtitlePosition(str, Enum):
+    bottom = "bottom"
+    top = "top"
+    center = "center"
+
+
 class QualityPreset(str, Enum):
     ultrafast = "ultrafast"
     fast = "fast"
@@ -50,6 +56,7 @@ class SubtitleSettings(BaseModel):
     enable_borders: bool = True
     border_color: str = "#000000"
     border_thickness: int = Field(default=3, ge=1, le=8)
+    position: SubtitlePosition = SubtitlePosition.bottom
     mixed_font_settings: MixedFontSettings = Field(default_factory=MixedFontSettings)
 
 
@@ -117,9 +124,14 @@ class UploadJobResponse(BaseModel):
     message: str
 
 
+class ChannelInfo(BaseModel):
+    channel_id: str
+    channel_name: str
+
+
 class AuthStatusResponse(BaseModel):
     authenticated: bool
-    channel_name: Optional[str] = None
+    channels: List[ChannelInfo] = []
     message: str
 
 
