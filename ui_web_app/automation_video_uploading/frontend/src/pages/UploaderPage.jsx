@@ -597,20 +597,26 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
               </button>
             </div>
             
-            <div style={{ maxHeight: '250px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              {processedVideos.length === 0 ? (
-                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                  No processed videos found on the server.
+            <div style={{ display: 'grid', gap: '1rem', marginTop: '0.5rem' }}>
+              {/* Available Server Videos */}
+              <div>
+                <div style={{ marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                  Available Server Videos
                 </div>
-              ) : (
+                <div style={{ maxHeight: '200px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  {processedVideos.filter(v => !videos.find(sv => sv.isServer && sv.name === v.path)).length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                      No available processed videos found on the server.
+                    </div>
+                  ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                   <thead style={{ position: 'sticky', top: 0, background: '#13131A', zIndex: 1 }}>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: 'var(--text-muted)' }}>
                       <th style={{ padding: '0.75rem', width: '40px', textAlign: 'center' }}>
                         <input 
                           type="checkbox" 
-                          checked={selectedProcessed.length === processedVideos.length && processedVideos.length > 0}
-                          onChange={(e) => setSelectedProcessed(e.target.checked ? processedVideos.map(v => v.path) : [])}
+                          checked={selectedProcessed.length === processedVideos.filter(v => !videos.find(sv => sv.isServer && sv.name === v.path)).length && processedVideos.filter(v => !videos.find(sv => sv.isServer && sv.name === v.path)).length > 0}
+                          onChange={(e) => setSelectedProcessed(e.target.checked ? processedVideos.filter(v => !videos.find(sv => sv.isServer && sv.name === v.path)).map(v => v.path) : [])}
                         />
                       </th>
                       <th style={{ padding: '0.75rem' }}>Filename</th>
@@ -619,7 +625,9 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {processedVideos.map(v => (
+                    {processedVideos
+                      .filter(v => !videos.find(sv => sv.isServer && sv.name === v.path))
+                      .map(v => (
                       <tr key={v.path} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }} onClick={() => toggleProcessedSelection(v.path)}>
                         <td style={{ padding: '0.75rem', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                           <input 
@@ -661,14 +669,56 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                 <div style={{ flex: 1 }}></div>
                 <button 
                   className="btn btn-ghost btn-sm" 
-                  onClick={() => deleteProcessed(processedVideos.map(v => v.path))}
+                  onClick={() => deleteProcessed(processedVideos.filter(v => !videos.find(sv => sv.isServer && sv.name === v.path)).map(v => v.path))}
                   style={{ color: '#f87171' }}
                 >
-                  ⚠️ Delete All
+                  ⚠️ Delete All Available
                 </button>
               </div>
             )}
+            </div>
+
+            {/* Selected Server Videos */}
+            {videos.filter(v => v.isServer).length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <div style={{ marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                  Selected for Batch Upload
+                </div>
+                <div style={{ maxHeight: '200px', overflowY: 'auto', background: 'rgba(16,185,129,0.05)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <thead style={{ position: 'sticky', top: 0, background: '#13131A', zIndex: 1 }}>
+                      <tr style={{ borderBottom: '1px solid rgba(16,185,129,0.2)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                        <th style={{ padding: '0.75rem' }}>Filename</th>
+                        <th style={{ padding: '0.75rem', width: '80px', textAlign: 'right' }}>Size</th>
+                        <th style={{ padding: '0.75rem', width: '100px', textAlign: 'center' }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {videos.filter(v => v.isServer).map(v => (
+                        <tr key={v.name} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <td style={{ padding: '0.75rem' }}>
+                            <div style={{ wordBreak: 'break-all', fontWeight: '500', color: 'var(--accent-cyan)' }}>{v.displayName || v.name}</div>
+                          </td>
+                          <td style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)' }}>{(v.size / (1024*1024)).toFixed(1)} MB</td>
+                          <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                            <button 
+                              className="btn btn-ghost btn-sm" 
+                              style={{ color: '#fca5a5', padding: '0.25rem 0.5rem' }}
+                              onClick={() => setVideos(prev => prev.filter(pv => pv.name !== v.name))}
+                            >
+                              Remove
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            </div>
           </div>
+
 
           <div className="card">
 
