@@ -79,13 +79,25 @@ async def _send_ws(job_id: str, msg_type: str, message: str, progress=None):
 # ─────────────────────────── Auth Endpoints ───────────────────────────
 
 @router.post("/auth/upload-secret")
-async def upload_client_secret(file: UploadFile = File(...)):
-    """Upload client_secret.json from the user."""
-    content = await file.read()
-    path = "client_secret.json"
-    with open(path, "wb") as f:
-        f.write(content)
-    return {"message": "client_secret.json uploaded successfully"}
+async def upload_client_secret(files: list[UploadFile] = File(...)):
+    """Upload client_secret.json files from the user."""
+    for file in files:
+        content = await file.read()
+        # Save each file with its original name to support multiple
+        # If it doesn't end with .json, append it
+        filename = file.filename
+        if not filename.endswith(".json"):
+            filename += ".json"
+            
+        with open(filename, "wb") as f:
+            f.write(content)
+            
+        # Also save the last uploaded one as the default 'client_secret.json'
+        # so that `start_oauth_flow` works out of the box with the default expected path
+        with open("client_secret.json", "wb") as f:
+            f.write(content)
+            
+    return {"message": f"{len(files)} client_secret file(s) uploaded successfully"}
 
 
 @router.get("/auth/start")

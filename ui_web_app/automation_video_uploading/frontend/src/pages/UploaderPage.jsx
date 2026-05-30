@@ -52,16 +52,16 @@ function TagInput({ tags, onChange }) {
 
 // ─── Auth Panel ───
 function AuthPanel({ authStatus, onStatusChange }) {
-  const [secretFile, setSecretFile] = useState(null);
+  const [secretFiles, setSecretFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState('');
 
   const uploadSecret = async () => {
-    if (!secretFile) return;
+    if (!secretFiles || secretFiles.length === 0) return;
     setUploading(true);
     try {
-      await uploaderApi.uploadSecret(secretFile);
-      setMsg('✅ client_secret.json uploaded');
+      await uploaderApi.uploadSecret(secretFiles);
+      setMsg(`✅ ${secretFiles.length} client_secret.json file(s) uploaded`);
     } catch (e) {
       setMsg('❌ ' + (e.response?.data?.detail || 'Upload failed'));
     }
@@ -132,22 +132,23 @@ function AuthPanel({ authStatus, onStatusChange }) {
       <div className="form-group">
         <label className="form-label">{authStatus?.authenticated ? "Connect Another Account (Requires client_secret.json)" : "Step 1: Upload client_secret.json"}</label>
         <FileDropzone
+          multiple
           accept=".json"
           icon="🔑"
           title="Drop client_secret.json here"
-          hint="or click to browse"
+          hint="or click to browse (can select multiple)"
           acceptLabel="JSON files only"
           showList
-          onFiles={(arr) => setSecretFile(arr[0] || null)}
+          onFiles={(arr) => setSecretFiles(arr)}
         />
       </div>
       <div className="row" style={{ marginTop: '0.5rem' }}>
         <button
           className="btn btn-secondary"
           onClick={uploadSecret}
-          disabled={!secretFile || uploading}
+          disabled={!secretFiles || secretFiles.length === 0 || uploading}
         >
-          {uploading ? '⏳ Uploading…' : '📤 Upload Secret'}
+          {uploading ? '⏳ Uploading…' : `📤 Upload Secret${secretFiles && secretFiles.length > 1 ? 's' : ''}`}
         </button>
         <button className="btn btn-primary" onClick={startAuth}>
           🔗 Connect to YouTube

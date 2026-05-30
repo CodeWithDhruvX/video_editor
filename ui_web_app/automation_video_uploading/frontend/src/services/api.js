@@ -29,9 +29,13 @@ export const editorApi = {
 // ─── Uploader API ───
 export const uploaderApi = {
   // Auth
-  uploadSecret: (file) => {
+  uploadSecret: (files) => {
     const fd = new FormData();
-    fd.append('file', file);
+    if (Array.isArray(files)) {
+      files.forEach(file => fd.append('files', file));
+    } else {
+      fd.append('files', files);
+    }
     return api.post('/uploader/auth/upload-secret', fd);
   },
   startAuth: () => api.get('/uploader/auth/start'),
