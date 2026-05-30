@@ -4,7 +4,7 @@ I want you to:
 
 A killer hook in the first 3 seconds.
 A clear structure for 30–60 seconds (problem > solution > quick tip).
-A call-to-action (like comment, share, or watch next).
+A call-to-action (like comment, share, or watch next).programming langage name added.
 2. Suggest 5 click-worthy titles and thumbnails for each idea (SEO + curiosity-based).
 
 3. Provide 1 full 30-second script for the highest potential idea.
