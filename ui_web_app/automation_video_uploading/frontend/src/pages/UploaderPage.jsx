@@ -409,6 +409,7 @@ function SingleUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
 function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   const [videos, setVideos] = useState([]);
   const [metadataFile, setMetadataFile] = useState(null);
+  const [metadataText, setMetadataText] = useState('');
   const [metadataPreview, setMetadataPreview] = useState(null);
   const [videoMapping, setVideoMapping] = useState({});
   const [jobId, setJobId] = useState(null);
@@ -432,9 +433,28 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
     try {
       const text = await file.text();
       const data = JSON.parse(text);
+      setMetadataText(text);
       setMetadataPreview(data);
+      setError('');
     } catch {
       setError('Invalid JSON metadata file');
+    }
+  };
+
+  const handleMetadataTextChange = (e) => {
+    const text = e.target.value;
+    setMetadataText(text);
+    if (!text.trim()) {
+      setMetadataPreview(null);
+      setError('');
+      return;
+    }
+    try {
+      const data = JSON.parse(text);
+      setMetadataPreview(data);
+      setError('');
+    } catch {
+      setError('Invalid JSON format in text area');
     }
   };
 
@@ -462,7 +482,7 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   const submit = async () => {
     if (!activeChannelId) return setError('Select a YouTube channel');
     if (videos.length === 0) return setError('Select at least one video');
-    if (!metadataFile) return setError('Select a metadata JSON file');
+    if (!metadataPreview || !metadataPreview.videos) return setError('Provide valid metadata JSON via file or paste');
     setError('');
     setIsSubmitting(true);
     reset();
@@ -529,6 +549,20 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                 acceptLabel="JSON file"
                 onFiles={(arr) => arr[0] && loadMetadata(arr[0])}
               />
+              
+              <div style={{ marginTop: '0.75rem', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                — OR PASTE JSON BELOW —
+              </div>
+              
+              <textarea
+                className="form-textarea"
+                placeholder='{"videos": [{"title": "My Video", ...}]}'
+                value={metadataText}
+                onChange={handleMetadataTextChange}
+                rows={6}
+                style={{ marginTop: '0.5rem', fontFamily: 'monospace', fontSize: '0.8rem' }}
+              />
+              
               <div className="tooltip-text" style={{ marginTop: '0.5rem' }}>
                 JSON format: <code style={{ color: 'var(--accent-cyan)', fontFamily: 'monospace' }}>{'{"videos": [{title, description, tags, ...}]}'}</code>
               </div>
