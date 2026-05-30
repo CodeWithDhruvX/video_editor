@@ -124,13 +124,10 @@ def build_ass_header(subtitle_color: str, subtitle_size: int, border_color: str,
     border_ass_color = hex_to_ass_color(border_color)
     return f"""[Script Info]
 ScriptType: v4.00+
-PlayResX: 1080
-PlayResY: 1920
-ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Arial,{subtitle_size},{ass_color},&H00FFFFFF,{border_ass_color},&H00000000,-1,0,0,0,100,100,0,0,1,{border_thickness},0,2,30,30,100,1
+Style: Default,Arial,{subtitle_size},{ass_color},&H00FFFFFF,{border_ass_color},&H00000000,-1,0,0,0,100,100,0,0,1,{border_thickness},0,2,30,30,90,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
