@@ -60,6 +60,7 @@ class VideoEditConfig(BaseModel):
     enable_ducking: bool = True
     enable_merge: bool = False
     subtitle_settings: SubtitleSettings = Field(default_factory=SubtitleSettings)
+    edited_transcripts: Optional[Dict[str, List[Dict[str, Any]]]] = None
 
 
 class JobStatusResponse(BaseModel):

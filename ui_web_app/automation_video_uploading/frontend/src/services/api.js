@@ -9,6 +9,11 @@ const api = axios.create({
 
 // ─── Editor API ───
 export const editorApi = {
+  transcribeVideo: (formData) =>
+    api.post('/editor/transcribe', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+
   startProcessing: (formData) =>
     api.post('/editor/process', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },

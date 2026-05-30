@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import FileDropzone from '../components/shared/FileDropzone';
 import ProgressConsole from '../components/shared/ProgressConsole';
+import SubtitleEditor from '../components/SubtitleEditor';
 import { editorApi } from '../services/api';
 import { useWebSocket } from '../hooks/useWebSocket';
 
@@ -17,6 +18,10 @@ export default function EditorPage() {
   const [inputVideos, setInputVideos] = useState([]);
   const [extraVideo, setExtraVideo] = useState(null);
   const [bgMusic, setBgMusic] = useState(null);
+
+  // Transcript State
+  const [transcripts, setTranscripts] = useState({});
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   // Config
   const [quality, setQuality] = useState('fast');
@@ -47,6 +52,30 @@ export default function EditorPage() {
 
   const { logs, progress, status, reset } = useWebSocket(jobId, 'editor');
 
+  const handleTranscribe = async () => {
+    if (inputVideos.length === 0) {
+      setError('Please select a video file first to transcribe.');
+      return;
+    }
+    setError('');
+    setIsTranscribing(true);
+    setTranscripts({});
+    try {
+      const results = {};
+      for (const video of inputVideos) {
+        const fd = new FormData();
+        fd.append('video', video);
+        const res = await editorApi.transcribeVideo(fd);
+        results[video.name] = res.data.words || [];
+      }
+      setTranscripts(results);
+    } catch (e) {
+      setError(e.response?.data?.detail || 'Transcription failed.');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (inputVideos.length === 0) {
       setError('Please select at least one video file');
@@ -64,6 +93,7 @@ export default function EditorPage() {
       enable_auto_edit: autoEdit,
       enable_ducking: enableDucking,
       enable_merge: enableMerge,
+      edited_transcripts: transcripts,
       subtitle_settings: {
         color: subtitleColor,
         mode: subtitleMode,
@@ -133,7 +163,10 @@ export default function EditorPage() {
               title="Drop video files here"
               hint="or click to browse"
               acceptLabel="MP4, MOV, AVI, MKV"
-              onFiles={setInputVideos}
+              onFiles={(files) => {
+                setInputVideos(files);
+                setTranscripts({});
+              }}
             />
 
             <div style={{ marginTop: '1rem' }}>
@@ -171,6 +204,30 @@ export default function EditorPage() {
                 onFiles={(arr) => setBgMusic(arr[0] || null)}
               />
             </div>
+          </div>
+
+          {/* Transcription & Subtitles */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon" style={{ background: 'rgba(59,130,246,0.15)' }}>🎙️</div>
+              <div>
+                <div className="card-title">Transcription & Subtitles</div>
+                <div className="card-subtitle">Generate and edit subtitles before processing</div>
+              </div>
+            </div>
+            
+            <button
+              className="btn btn-secondary"
+              onClick={handleTranscribe}
+              disabled={isTranscribing || inputVideos.length === 0}
+              style={{ width: '100%', marginBottom: '1rem' }}
+            >
+              {isTranscribing ? '⏳ Transcribing...' : '🎙️ Transcribe Video'}
+            </button>
+
+            {Object.keys(transcripts).length > 0 && (
+              <SubtitleEditor transcripts={transcripts} setTranscripts={setTranscripts} />
+            )}
           </div>
 
           {/* Processing Options */}

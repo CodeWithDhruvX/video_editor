@@ -230,6 +230,7 @@ async def process_video(
     ass_path: Optional[str],
     config: Dict[str, Any],
     progress_cb: ProgressCallback,
+    stop_event: asyncio.Event,
     _gpu_fallback: bool = False,
 ) -> bool:
     """
@@ -275,6 +276,11 @@ async def process_video(
             
             try:
                 for line in iter(proc.stderr.readline, ''):
+                    if stop_event.is_set():
+                        proc.kill()
+                        asyncio.run_coroutine_threadsafe(progress_cb("STOPPED", "🛑 Processing stopped by user", None), loop)
+                        return False
+                        
                     if not line:
                         break
                     line = line.rstrip()
@@ -409,6 +415,7 @@ async def process_video(
             return await process_video(
                 input_path, output_path, extra_video,
                 background_music, ass_path, config_cpu, progress_cb,
+                stop_event,
                 _gpu_fallback=True,
             )
 
@@ -455,10 +462,16 @@ async def process_all_videos(
         base_name = Path(video_path).stem
         output_path = os.path.join(output_dir, f"{base_name}_processed.mp4")
 
-        # Transcribe
+        # Transcribe or use provided edited transcript
         words = []
         ass_path = None
-        if subtitle_settings.get("mode") in ("single", "multiple", "mixed"):
+        
+        edited_transcripts = config.get("edited_transcripts", {})
+        
+        if name in edited_transcripts:
+            await progress_cb("STATUS", f"🎙️ Using provided edited transcript for {name}…", None)
+            words = edited_transcripts[name]
+        elif subtitle_settings.get("mode") in ("single", "multiple", "mixed"):
             await progress_cb("STATUS", f"🎙️ Transcribing audio with Whisper…", None)
             words = await transcribe_video(video_path, progress_cb)
         else:
@@ -477,7 +490,7 @@ async def process_all_videos(
         # Process video
         success = await process_video(
             video_path, output_path, extra_video,
-            background_music, ass_path, config, progress_cb
+            background_music, ass_path, config, progress_cb, stop_event
         )
 
         # Cleanup temp ass file

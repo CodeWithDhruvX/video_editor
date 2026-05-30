@@ -14,7 +14,7 @@ from fastapi import APIRouter, File, Form, UploadFile, HTTPException, WebSocket,
 from fastapi.responses import FileResponse
 
 from models.schemas import JobStatusResponse, JobStatus, VideoEditConfig
-from services.video_processor import process_all_videos
+from services.video_processor import process_all_videos, transcribe_video
 
 router = APIRouter(prefix="/editor", tags=["editor"])
 
@@ -78,6 +78,33 @@ async def _send_ws(job_id: str, msg_type: str, message: str, progress=None):
 
 # ─────────────────────────── Endpoints ───────────────────────────
 
+@router.post("/transcribe")
+async def transcribe_video_endpoint(video: UploadFile = File(...)):
+    """
+    Transcribe a single video file and return the word-level transcript.
+    """
+    import tempfile
+    
+    # Save uploaded video to temp file
+    suffix = Path(video.filename).suffix
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp.write(await video.read())
+        tmp_path = tmp.name
+        
+    try:
+        # Dummy progress callback
+        async def dummy_cb(msg_type: str, msg: str, prog: float = None):
+            pass
+            
+        words = await transcribe_video(tmp_path, dummy_cb)
+        return {"words": words}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+
 @router.post("/process", response_model=JobStatusResponse)
 async def start_processing(
     videos: list[UploadFile] = File(...),
@@ -124,15 +151,16 @@ async def start_processing(
         dest.write_bytes(content)
         music_path = str(dest)
 
+    stop_event = asyncio.Event()
+
     # Init job record
     _jobs[job_id] = {
         "status": JobStatus.running,
         "progress": 0.0,
         "logs": [],
         "output_files": [],
+        "stop_event": stop_event,
     }
-
-    stop_event = asyncio.Event()
 
     # Launch processing in background
     async def _run():
@@ -188,6 +216,10 @@ async def stop_job(job_id: str):
     job = _jobs.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
+        
+    if "stop_event" in job:
+        job["stop_event"].set()
+        
     job["stop_requested"] = True
     return {"message": "Stop requested"}
 
