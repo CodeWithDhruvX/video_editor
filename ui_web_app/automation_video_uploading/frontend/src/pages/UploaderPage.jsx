@@ -414,7 +414,18 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   const [jobId, setJobId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [playlists, setPlaylists] = useState([]);
   const { logs, progress, status, reset } = useWebSocket(jobId, 'uploader');
+
+  useEffect(() => {
+    if (activeChannelId) {
+      uploaderApi.getPlaylists(activeChannelId)
+        .then(res => setPlaylists(res.data || []))
+        .catch(err => console.error("Failed to load playlists", err));
+    } else {
+      setPlaylists([]);
+    }
+  }, [activeChannelId]);
 
   const loadMetadata = async (file) => {
     setMetadataFile(file);
@@ -425,6 +436,27 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
     } catch {
       setError('Invalid JSON metadata file');
     }
+  };
+
+  const updateMetadataField = (index, field, value) => {
+    const updated = { ...metadataPreview };
+    updated.videos[index][field] = value;
+    setMetadataPreview(updated);
+  };
+
+  const handleDateChange = (index, val) => {
+    if (!val) {
+      updateMetadataField(index, 'publish_at', null);
+      return;
+    }
+    // Convert "2024-12-25T10:00" to "2024-12-25 10:00:00"
+    updateMetadataField(index, 'publish_at', val.replace('T', ' ') + ':00');
+  };
+
+  const formatPublishAt = (val) => {
+    if (!val) return '';
+    // Convert "2024-12-25 10:00:00" to "2024-12-25T10:00"
+    return val.replace(' ', 'T').substring(0, 16);
   };
 
   const submit = async () => {
@@ -439,8 +471,8 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
     fd.append('channel_id', activeChannelId);
     videos.forEach((v) => fd.append('videos', v));
     
-    // Inject the selected video mapping back into the metadata JSON
-    const metadata = JSON.parse(await metadataFile.text());
+    // The metadataPreview object is updated live, we use that for submission
+    const metadata = { ...metadataPreview };
     if (metadata.videos) {
       metadata.videos.forEach((v, i) => {
         const mappedName = videoMapping[i] !== undefined ? videoMapping[i] : (videos[i] ? videos[i].name : null);
@@ -462,86 +494,54 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '1.5rem', alignItems: 'start' }}>
-      <div className="stack">
-        <div className="card">
-          <div className="card-header">
-            <div className="card-icon" style={{ background: 'rgba(6,182,212,0.12)' }}>📦</div>
-            <div>
-              <div className="card-title">Batch Upload</div>
-              <div className="card-subtitle">Upload multiple videos at once using a JSON metadata file</div>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Video Files</label>
-            <FileDropzone
-              multiple
-              accept="video/*"
-              icon="🎬"
-              title="Drop all video files here"
-              hint="or click to browse (select multiple)"
-              acceptLabel="MP4, MOV, AVI, MKV"
-              onFiles={setVideos}
-            />
-          </div>
-
-          <div className="form-group" style={{ marginTop: '0.5rem' }}>
-            <label className="form-label">Metadata JSON</label>
-            <FileDropzone
-              accept=".json"
-              icon="📋"
-              title="Drop metadata.json here"
-              hint="or click to browse"
-              acceptLabel="JSON file"
-              onFiles={(arr) => arr[0] && loadMetadata(arr[0])}
-            />
-            <div className="tooltip-text" style={{ marginTop: '0.5rem' }}>
-              JSON format: <code style={{ color: 'var(--accent-cyan)', fontFamily: 'monospace' }}>{'{"videos": [{title, description, tags, ...}]}'}</code>
-            </div>
-          </div>
-
-          {metadataPreview && (
-            <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(6,182,212,0.06)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(6,182,212,0.15)' }}>
-              <div className="section-label" style={{ marginBottom: '0.5rem' }}>📋 Metadata Preview</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Found <strong style={{ color: 'var(--accent-cyan)' }}>{metadataPreview.videos?.length || 0} videos</strong> in metadata
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '1.5rem', alignItems: 'start' }}>
+        <div className="stack">
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon" style={{ background: 'rgba(6,182,212,0.12)' }}>📦</div>
+              <div>
+                <div className="card-title">Batch Upload</div>
+                <div className="card-subtitle">Upload multiple videos at once using a JSON metadata file</div>
               </div>
-              {metadataPreview.videos?.slice(0, 5).map((v, i) => (
-                <div key={i} style={{ padding: '0.4rem 0.6rem', marginTop: '0.4rem', background: 'rgba(255,255,255,0.04)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <strong>{i + 1}.</strong> {v.title}
-                    {v.privacy_status && <span style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }}>({v.privacy_status})</span>}
-                  </div>
-                  <select 
-                    className="form-select" 
-                    style={{ padding: '2px 6px', fontSize: '0.75rem', height: 'auto', background: 'rgba(6,182,212,0.1)', color: 'var(--accent-cyan)', border: 'none', maxWidth: '200px' }}
-                    value={videoMapping[i] !== undefined ? videoMapping[i] : (videos[i] ? videos[i].name : '')}
-                    onChange={(e) => setVideoMapping({ ...videoMapping, [i]: e.target.value })}
-                  >
-                    <option value="">-- Select Video --</option>
-                    {videos.map((vid, vidIdx) => (
-                      <option key={vidIdx} value={vid.name}>📎 {vid.name}</option>
-                    ))}
-                  </select>
-                </div>
-              ))}
-              {(metadataPreview.videos?.length || 0) > 5 && (
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                  …and {metadataPreview.videos.length - 5} more
-                </div>
-              )}
             </div>
-          )}
-        </div>
 
-        {/* JSON Format Guide */}
-        <div className="card">
-          <div className="card-header">
-            <div className="card-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>📖</div>
-            <div><div className="card-title">Metadata Format Guide</div></div>
+            <div className="form-group">
+              <label className="form-label">Video Files</label>
+              <FileDropzone
+                multiple
+                accept="video/*"
+                icon="🎬"
+                title="Drop all video files here"
+                hint="or click to browse (select multiple)"
+                acceptLabel="MP4, MOV, AVI, MKV"
+                onFiles={setVideos}
+              />
+            </div>
+
+            <div className="form-group" style={{ marginTop: '0.5rem' }}>
+              <label className="form-label">Metadata JSON</label>
+              <FileDropzone
+                accept=".json"
+                icon="📋"
+                title="Drop metadata.json here"
+                hint="or click to browse"
+                acceptLabel="JSON file"
+                onFiles={(arr) => arr[0] && loadMetadata(arr[0])}
+              />
+              <div className="tooltip-text" style={{ marginTop: '0.5rem' }}>
+                JSON format: <code style={{ color: 'var(--accent-cyan)', fontFamily: 'monospace' }}>{'{"videos": [{title, description, tags, ...}]}'}</code>
+              </div>
+            </div>
           </div>
-          <pre style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 'var(--radius-sm)', padding: '1rem', fontSize: '0.75rem', color: '#a3e635', fontFamily: 'JetBrains Mono, monospace', overflow: 'auto' }}>
+
+          {/* JSON Format Guide */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>📖</div>
+              <div><div className="card-title">Metadata Format Guide</div></div>
+            </div>
+            <pre style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 'var(--radius-sm)', padding: '1rem', fontSize: '0.75rem', color: '#a3e635', fontFamily: 'JetBrains Mono, monospace', overflow: 'auto' }}>
 {`{
   "videos": [
     {
@@ -556,58 +556,154 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
     }
   ]
 }`}
-          </pre>
+            </pre>
+          </div>
+        </div>
+
+        {/* Right panel */}
+        <div className="stack" style={{ position: 'sticky', top: '80px' }}>
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon" style={{ background: 'rgba(16,185,129,0.12)' }}>📦</div>
+              <div>
+                <div className="card-title">Batch Upload</div>
+                <div className="card-subtitle">{videos.length} video(s) selected</div>
+              </div>
+            </div>
+            {!authStatus?.authenticated && (
+              <div style={{ padding: '0.75rem', background: 'rgba(239,68,68,0.08)', borderRadius: 'var(--radius-sm)', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                ⚠️ Please authenticate with YouTube first
+              </div>
+            )}
+            {authStatus?.authenticated && (
+              <div className="form-group">
+                <label className="form-label">Target Channel</label>
+                <select 
+                  className="form-select" 
+                  value={activeChannelId} 
+                  onChange={(e) => setActiveChannelId(e.target.value)}
+                >
+                  <option value="">-- Select Channel --</option>
+                  {authStatus?.channels?.map(c => (
+                    <option key={c.channel_id} value={c.channel_id}>{c.channel_name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {error && (
+              <div style={{ padding: '0.75rem', background: 'rgba(239,68,68,0.08)', borderRadius: 'var(--radius-sm)', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                ⚠️ {error}
+              </div>
+            )}
+            <button
+              className="btn btn-primary btn-lg"
+              style={{ width: '100%' }}
+              onClick={submit}
+              disabled={isSubmitting || status === 'running' || !authStatus?.authenticated || !activeChannelId}
+            >
+              {isSubmitting || status === 'running'
+                ? `⏳ Uploading… (${Math.round(progress)}%)`
+                : `🚀 Upload ${videos.length || 0} Videos`}
+            </button>
+          </div>
+          <ProgressConsole logs={logs} progress={progress} status={status} title="Batch Upload Log" />
         </div>
       </div>
 
-      {/* Right panel */}
-      <div className="stack" style={{ position: 'sticky', top: '80px' }}>
-        <div className="card">
+      {/* NEW Metadata Preview Section - Wide format */}
+      {metadataPreview && (
+        <div className="card" style={{ marginTop: '1.5rem', overflowX: 'auto' }}>
           <div className="card-header">
-            <div className="card-icon" style={{ background: 'rgba(16,185,129,0.12)' }}>📦</div>
+            <div className="card-icon" style={{ background: 'rgba(6,182,212,0.12)' }}>📋</div>
             <div>
-              <div className="card-title">Batch Upload</div>
-              <div className="card-subtitle">{videos.length} video(s) selected</div>
+              <div className="card-title">Metadata Preview & Editor</div>
+              <div className="card-subtitle">
+                Found <strong style={{ color: 'var(--accent-cyan)' }}>{metadataPreview.videos?.length || 0} videos</strong> in metadata
+              </div>
             </div>
           </div>
-          {!authStatus?.authenticated && (
-            <div style={{ padding: '0.75rem', background: 'rgba(239,68,68,0.08)', borderRadius: 'var(--radius-sm)', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(239,68,68,0.2)' }}>
-              ⚠️ Please authenticate with YouTube first
-            </div>
-          )}
-          {authStatus?.authenticated && (
-            <div className="form-group">
-              <label className="form-label">Target Channel</label>
-              <select 
-                className="form-select" 
-                value={activeChannelId} 
-                onChange={(e) => setActiveChannelId(e.target.value)}
-              >
-                <option value="">-- Select Channel --</option>
-                {authStatus?.channels?.map(c => (
-                  <option key={c.channel_id} value={c.channel_id}>{c.channel_name}</option>
-                ))}
-              </select>
-            </div>
-          )}
-          {error && (
-            <div style={{ padding: '0.75rem', background: 'rgba(239,68,68,0.08)', borderRadius: 'var(--radius-sm)', color: '#fca5a5', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(239,68,68,0.2)' }}>
-              ⚠️ {error}
-            </div>
-          )}
-          <button
-            className="btn btn-primary btn-lg"
-            style={{ width: '100%' }}
-            onClick={submit}
-            disabled={isSubmitting || status === 'running' || !authStatus?.authenticated || !activeChannelId}
-          >
-            {isSubmitting || status === 'running'
-              ? `⏳ Uploading… (${Math.round(progress)}%)`
-              : `🚀 Upload ${videos.length || 0} Videos`}
-          </button>
+          
+          <table style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse', marginTop: '1rem', fontSize: '0.85rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                <th style={{ padding: '0.75rem', width: '50px' }}>#</th>
+                <th style={{ padding: '0.75rem', width: '30%' }}>Title</th>
+                <th style={{ padding: '0.75rem', width: '15%' }}>Privacy</th>
+                <th style={{ padding: '0.75rem', width: '15%' }}>Schedule (Optional)</th>
+                <th style={{ padding: '0.75rem', width: '20%' }}>Playlist</th>
+                <th style={{ padding: '0.75rem', width: '20%' }}>Map Video</th>
+              </tr>
+            </thead>
+            <tbody>
+              {metadataPreview.videos?.map((v, i) => (
+                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', verticalAlign: 'middle' }}>
+                  <td style={{ padding: '0.75rem' }}><strong>{i + 1}.</strong></td>
+                  
+                  {/* Title */}
+                  <td style={{ padding: '0.75rem' }}>
+                    <div style={{ fontWeight: '500', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>{v.title}</div>
+                  </td>
+                  
+                  {/* Privacy Status */}
+                  <td style={{ padding: '0.75rem' }}>
+                    <select 
+                      className="form-select" 
+                      style={{ padding: '4px 8px', fontSize: '0.8rem', height: 'auto', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-sm)', width: '100%' }}
+                      value={v.privacy_status || 'public'}
+                      onChange={(e) => updateMetadataField(i, 'privacy_status', e.target.value)}
+                    >
+                      <option value="public">Public</option>
+                      <option value="unlisted">Unlisted</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </td>
+                  
+                  {/* Publish At */}
+                  <td style={{ padding: '0.75rem' }}>
+                    <input 
+                      type="datetime-local" 
+                      className="form-input"
+                      style={{ padding: '4px 8px', fontSize: '0.8rem', height: 'auto', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-sm)', width: '100%' }}
+                      value={formatPublishAt(v.publish_at)}
+                      onChange={(e) => handleDateChange(i, e.target.value)}
+                    />
+                  </td>
+                  
+                  {/* Playlist */}
+                  <td style={{ padding: '0.75rem' }}>
+                    <select 
+                      className="form-select" 
+                      style={{ padding: '4px 8px', fontSize: '0.8rem', height: 'auto', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-sm)', width: '100%' }}
+                      value={v.playlist_names?.[0] || ''}
+                      onChange={(e) => updateMetadataField(i, 'playlist_names', e.target.value ? [e.target.value] : [])}
+                    >
+                      <option value="">-- No Playlist --</option>
+                      {playlists.map(p => (
+                        <option key={p.id} value={p.title}>{p.title}</option>
+                      ))}
+                    </select>
+                  </td>
+                  
+                  {/* Map Video Dropdown */}
+                  <td style={{ padding: '0.75rem' }}>
+                    <select 
+                      className="form-select" 
+                      style={{ padding: '4px 8px', fontSize: '0.8rem', height: 'auto', background: 'rgba(6,182,212,0.1)', color: 'var(--accent-cyan)', border: 'none', width: '100%' }}
+                      value={videoMapping[i] !== undefined ? videoMapping[i] : (videos[i] ? videos[i].name : '')}
+                      onChange={(e) => setVideoMapping({ ...videoMapping, [i]: e.target.value })}
+                    >
+                      <option value="">-- Select Video --</option>
+                      {videos.map((vid, vidIdx) => (
+                        <option key={vidIdx} value={vid.name}>📎 {vid.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <ProgressConsole logs={logs} progress={progress} status={status} title="Batch Upload Log" />
-      </div>
+      )}
     </div>
   );
 }
