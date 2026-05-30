@@ -299,11 +299,16 @@ async def upload_batch_with_files(
     try:
         meta = json.loads(metadata_json)
         batch = BatchUploadMetadata(**meta)
-        for v in batch.videos:
-            # Match by filename in the video_file_path field
-            fname = Path(v.video_file_path or "").name if v.video_file_path else None
-            if fname and fname in video_path_map:
-                v.video_file_path = video_path_map[fname]
+        for idx, v in enumerate(batch.videos):
+            # Match by explicit video_file_path if provided by frontend mapping
+            if v.video_file_path and v.video_file_path in video_path_map:
+                v.video_file_path = video_path_map[v.video_file_path]
+            # Fallback to match by order
+            elif idx < len(videos):
+                vid_filename = videos[idx].filename
+                if vid_filename in video_path_map:
+                    v.video_file_path = video_path_map[vid_filename]
+            
             if v.thumbnail_path:
                 tname = Path(v.thumbnail_path).name
                 if tname in thumb_path_map:

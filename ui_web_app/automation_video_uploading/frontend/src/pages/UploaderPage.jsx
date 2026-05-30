@@ -410,6 +410,7 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   const [videos, setVideos] = useState([]);
   const [metadataFile, setMetadataFile] = useState(null);
   const [metadataPreview, setMetadataPreview] = useState(null);
+  const [videoMapping, setVideoMapping] = useState({});
   const [jobId, setJobId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -437,7 +438,18 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
     const fd = new FormData();
     fd.append('channel_id', activeChannelId);
     videos.forEach((v) => fd.append('videos', v));
-    fd.append('metadata_json', await metadataFile.text());
+    
+    // Inject the selected video mapping back into the metadata JSON
+    const metadata = JSON.parse(await metadataFile.text());
+    if (metadata.videos) {
+      metadata.videos.forEach((v, i) => {
+        const mappedName = videoMapping[i] !== undefined ? videoMapping[i] : (videos[i] ? videos[i].name : null);
+        if (mappedName) {
+          v.video_file_path = mappedName;
+        }
+      });
+    }
+    fd.append('metadata_json', JSON.stringify(metadata));
 
     try {
       const res = await uploaderApi.uploadBatchWithFiles(fd);
@@ -496,9 +508,22 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                 Found <strong style={{ color: 'var(--accent-cyan)' }}>{metadataPreview.videos?.length || 0} videos</strong> in metadata
               </div>
               {metadataPreview.videos?.slice(0, 5).map((v, i) => (
-                <div key={i} style={{ padding: '0.4rem 0.6rem', marginTop: '0.4rem', background: 'rgba(255,255,255,0.04)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
-                  <strong>{i + 1}.</strong> {v.title}
-                  {v.privacy_status && <span style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }}>({v.privacy_status})</span>}
+                <div key={i} style={{ padding: '0.4rem 0.6rem', marginTop: '0.4rem', background: 'rgba(255,255,255,0.04)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong>{i + 1}.</strong> {v.title}
+                    {v.privacy_status && <span style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }}>({v.privacy_status})</span>}
+                  </div>
+                  <select 
+                    className="form-select" 
+                    style={{ padding: '2px 6px', fontSize: '0.75rem', height: 'auto', background: 'rgba(6,182,212,0.1)', color: 'var(--accent-cyan)', border: 'none', maxWidth: '200px' }}
+                    value={videoMapping[i] !== undefined ? videoMapping[i] : (videos[i] ? videos[i].name : '')}
+                    onChange={(e) => setVideoMapping({ ...videoMapping, [i]: e.target.value })}
+                  >
+                    <option value="">-- Select Video --</option>
+                    {videos.map((vid, vidIdx) => (
+                      <option key={vidIdx} value={vid.name}>📎 {vid.name}</option>
+                    ))}
+                  </select>
                 </div>
               ))}
               {(metadataPreview.videos?.length || 0) > 5 && (
@@ -527,9 +552,7 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
       "privacy_status": "public",
       "made_for_kids": false,
       "playlist_names": ["My Playlist"],
-      "publish_at": "2024-12-25 10:00:00",
-      "video_file_path": "video1.mp4",
-      "thumbnail_path": "thumb1.jpg"
+      "publish_at": "2024-12-25 10:00:00"
     }
   ]
 }`}
