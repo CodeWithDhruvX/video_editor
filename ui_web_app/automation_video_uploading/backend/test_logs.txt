@@ -1,0 +1,38 @@
+[STATUS] 📋 Job started — 1 video(s) to process
+[STATUS] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STATUS] 📹 Video 1/1: 1.1_126.mp4
+[LOG]   ├─ File size : 8.1 MB
+[LOG]   └─ Duration  : 100.5s
+[STATUS] 🎙️ Transcribing audio with Whisper…
+[LOG] 🎙️ Loading Whisper model...
+[LOG] ✅ Transcribed 241 words
+[STATUS] 📝 Generating SubtitleMode.mixed subtitles…
+[LOG]   ✅ Subtitles: 241 words → SubtitleMode.mixed mode
+[STATUS] 🎬 Starting pipeline for: 1.1_126.mp4
+[LOG]   ├─ Quality preset : QualityPreset.fast
+[LOG]   ├─ GPU encoding   : No  (libx264)
+[LOG]   ├─ Music volume   : 0.3
+[LOG]   └─ Smart ducking  : enabled
+[STATUS] 🔗 Step 1/3 — Merging videos…
+[LOG]   ⚠️ Merge warning (continuing anyway)
+[FFMPEG]   libpostproc    58.  0.100 / 58.  0.100
+[FFMPEG] [concat @ 000002d3b98a0b40] Impossible to open 'C:\Users\dhruv\AppData\Local\Temp\tmphi8n5_wq\uploads\9b101303-0847-4115-9604-d0c23c73fa8b\1.1_126.mp4'
+[FFMPEG] [in#0 @ 000002d3b9885b40] Error opening input: No such file or directory
+[FFMPEG] Error opening input file C:\Users\dhruv\AppData\Local\Temp\tmphi8n5_wq\concat.txt.
+[FFMPEG] Error opening input files: No such file or directory
+[STATUS] ⚙️ Step 2/3 — Building filter graph…
+[LOG]   ├─ Background music : enabled
+[LOG]   ├─ Audio ducking    : sidechaincompress-style
+[LOG]   └─ Subtitles        : burning in .ass overlay
+[STATUS] 🎞️ Step 3/3 — Encoding with libx264 (CPU, QualityPreset.fast)…
+[LOG]   FFmpeg cmd: ffmpeg -y -i uploads\9b101303-0847-4115-9604-d0c23c73fa8b\1.1_126.mp4 -i uploads\9b101303-0847-4115-9604-d0c23c73fa8b\Jingle Bells Calm - Kevin MacLeod.mp3 … [23 args total]
+[LOG] ▶ Running: encode → 1.1_126_processed.mp4
+[FFMPEG] frame=   91 fps=0.0 q=29.0 size=       0KiB time=00:00:02.96 bitrate=   0.1kbits/s speed=5.69x    [Parsed_ass_4 @ 000002e5d8f17ac0] fontselect: (Georgia, 700, 100) -> Georgia-BoldItalic, 0, Georgia-BoldItalic
+[FFMPEG] frame=  222 fps=214 q=29.0 size=       0KiB time=00:00:07.33 bitrate=   0.1kbits/s speed=7.07x    [Parsed_ass_4 @ 000002e5d8f17ac0] fontselect: (Tahoma, 700, 100) -> Tahoma-Bold, 0, Tahoma-Bold
+[FFMPEG] frame=  327 fps=211 q=29.0 size=     256KiB time=00:00:10.83 bitrate= 193.6kbits/s speed=6.98x    frame=  426 fps=206 q=29.0 size=     256KiB time=00:00:14.13 bitrate= 148.4kbits/s speed=6.83x    frame=  557 fps=215 q=29.0 size=     512KiB time=00:00:18.50 bitrate= 226.7kbits/s speed=7.16x    frame=  689 fps=222 q=29.0 size=     512KiB time=00:00:22.90 bitrate= 183.2kbits/s speed=7.39x    frame=  828 fps=229 q=29.0 size=     768KiB time=00:00:27.53 bitrate= 228.5kbits/s speed=7.62x    frame=  952 fps=230 q=29.0 size=     768KiB time=00:00:31.66 bitrate= 198.7kbits/s speed=7.67x    frame= 1126 fps=242 q=29.0 size=    1024KiB time=00:00:37.46 bitrate= 223.9kbits/s speed=8.07x    frame= 1285 fps=249 q=29.0 size=    1280KiB time=00:00:42.76 bitrate= 245.2kbits/s speed=8.29x    frame= 1454 fps=256 q=29.0 size=    1536KiB time=00:00:48.40 bitrate= 260.0kbits/s speed=8.53x    frame= 1604 fps=259 q=29.0 size=    1536KiB time=00:00:53.40 bitrate= 235.6kbits/s speed=8.63x    frame= 1728 fps=258 q=29.0 size=    1792KiB time=00:00:57.53 bitrate= 255.2kbits/s speed=8.59x    frame= 1906 fps=264 q=29.0 size=    1792KiB time=00:01:03.46 bitrate= 231.3kbits/s speed= 8.8x    frame= 2060 fps=267 q=29.0 size=    2048KiB time=00:01:08.60 bitrate= 244.6kbits/s speed=8.88x    frame= 2206 fps=267 q=29.0 size=    2304KiB time=00:01:13.46 bitrate= 256.9kbits/s speed= 8.9x    frame= 2317 fps=264 q=29.0 size=    2304KiB time=00:01:17.16 bitrate= 244.6kbits/s speed= 8.8x    frame= 2429 fps=262 q=29.0 size=    2560KiB time=00:01:20.90 bitrate= 259.2kbits/s speed=8.72x    frame= 2567 fps=262 q=29.0 size=    2560KiB time=00:01:25.50 bitrate= 245.3kbits/s speed=8.73x    frame= 2712 fps=263 q=29.0 size=    2816KiB time=00:01:30.33 bitrate= 255.4kbits/s speed=8.76x    frame= 2854 fps=263 q=29.0 size=    2816KiB time=00:01:35.06 bitrate= 242.7kbits/s speed=8.78x    [out#0/mp4 @ 000002e5d6e84fc0] video:894KiB audio:2354KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 3.373507%
+[FFMPEG] frame= 3016 fps=266 q=-1.0 Lsize=    3357KiB time=00:01:40.41 bitrate= 273.8kbits/s dup=2 drop=0 speed=8.86x
+[LOG] ✅ Processed: 1.1_126_processed.mp4
+[LOG] 💾 Output saved: 1.1_126_processed.mp4 (3.3 MB)
+[PROGRESS] 100.0
+[STATUS] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[COMPLETE] 🎉 All videos processed successfully!

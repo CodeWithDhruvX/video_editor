@@ -1,0 +1,28 @@
+# Web Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Video Processing
+ffmpeg-python==0.2.0
+moviepy==1.0.3
+
+# Speech Recognition
+faster-whisper==0.10.0
+
+# YouTube API
+google-api-python-client==2.108.0
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.2.0
+google-auth==2.23.4
+
+# Date/Time handling
+pytz==2023.3
+
+# File handling
+python-magic==0.4.27
+
+# Logging
+colorlog==6.8.0
+
+# Utilities
+python-dotenv==1.0.0

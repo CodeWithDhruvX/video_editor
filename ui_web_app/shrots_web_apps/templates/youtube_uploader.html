@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block title %}YouTube Uploader - Video Processor Pro{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h2 class="mb-4"><i class="fab fa-youtube text-danger"></i> YouTube Uploader</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Authentication Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-key"></i> YouTube Authentication</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> You need to authenticate with YouTube to upload videos.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Client Secret JSON File</label>
+                    <input type="file" class="form-control" id="clientSecretFile" accept=".json">
+                    <div class="form-text">Upload your YouTube OAuth client secret file</div>
+                </div>
+                <button class="btn btn-primary" onclick="authenticate()">
+                    <i class="fab fa-google"></i> Authenticate with YouTube
+                </button>
+                <div id="authStatus" class="mt-3">
+                    <p class="text-muted">Not authenticated</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Upload Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-upload"></i> Upload Video</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Video File</label>
+                    <input type="file" class="form-control" id="videoFile" accept="video/*">
+                </div>
+                <button class="btn btn-success" onclick="uploadVideo()">
+                    <i class="fab fa-youtube"></i> Upload to YouTube
+                </button>
+            </div>
+        </div>
+
+        <!-- Video Metadata -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Video Metadata</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Title *</label>
+                    <input type="text" class="form-control" id="videoTitle" placeholder="Enter video title" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="videoDescription" rows="4" placeholder="Enter video description"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" class="form-control" id="videoTags" placeholder="tag1, tag2, tag3">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="videoCategory">
+                        <option value="1">Film & Animation</option>
+                        <option value="2">Autos & Vehicles</option>
+                        <option value="10">Music</option>
+                        <option value="15">Pets & Animals</option>
+                        <option value="17">Sports</option>
+                        <option value="19">Travel & Events</option>
+                        <option value="20">Gaming</option>
+                        <option value="22">People & Blogs</option>
+                        <option value="23">Comedy</option>
+                        <option value="24">Entertainment</option>
+                        <option value="25">News & Politics</option>
+                        <option value="26">Howto & Style</option>
+                        <option value="27">Education</option>
+                        <option value="28">Science & Technology</option>
+                        <option value="29">Nonprofits & Activism</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Privacy Status</label>
+                    <select class="form-select" id="privacyStatus">
+                        <option value="private">Private</option>
+                        <option value="unlisted">Unlisted</option>
+                        <option value="public">Public</option>
+                    </select>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="madeForKids">
+                    <label class="form-check-label" for="madeForKids">
+                        Made for Kids
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Options -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-cogs"></i> Advanced Options</h5>
+            </div>
+            <div class="card-body">
+                <!-- Thumbnail -->
+                <div class="mb-3">
+                    <label class="form-label">Custom Thumbnail</label>
+                    <input type="file" class="form-control" id="thumbnailFile" accept="image/*">
+                    <div class="form-text">Upload a custom thumbnail (JPG or PNG, max 2MB)</div>
+                </div>
+
+                <!-- Scheduled Publishing -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="schedulePublish" onchange="toggleScheduleOptions()">
+                    <label class="form-check-label" for="schedulePublish">
+                        Schedule Publishing
+                    </label>
+                </div>
+
+                <div id="scheduleOptions" class="mb-3" style="display: none;">
+                    <label class="form-label">Publish Date & Time (IST)</label>
+                    <input type="datetime-local" class="form-control" id="publishAt">
+                    <div class="form-text">Format: YYYY-MM-DD HH:MM (India Standard Time)</div>
+                </div>
+
+                <!-- Playlists -->
+                <div class="mb-3">
+                    <label class="form-label">Add to Playlists (comma-separated)</label>
+                    <input type="text" class="form-control" id="playlistNames" placeholder="Playlist 1, Playlist 2">
+                    <div class="form-text">Playlists will be created if they don't exist</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Upload Status -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-spinner"></i> Upload Status</h5>
+            </div>
+            <div class="card-body">
+                <div id="uploadStatus">
+                    <p class="text-muted">No active upload</p>
+                </div>
+                <div class="progress mt-3" style="display: none;" id="uploadProgressBar">
+                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Log -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-terminal"></i> Upload Log</h5>
+            </div>
+            <div class="card-body">
+                <div id="uploadLog" style="height: 250px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                    <p class="text-muted mb-0">Upload log will appear here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playlists Management -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> My Playlists</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary btn-sm mb-3" onclick="loadPlaylists()">
+                    <i class="fas fa-sync"></i> Refresh Playlists
+                </button>
+                <div id="playlistsList">
+                    <p class="text-muted">Load playlists to view them</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Uploads -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Uploads</h5>
+            </div>
+            <div class="card-body">
+                <div id="recentUploads">
+                    <p class="text-muted">No recent uploads</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let isAuthenticated = false;
+let currentUploadTaskId = null;
+
+// Authenticate with YouTube
+function authenticate() {
+    const clientSecretFile = document.getElementById('clientSecretFile').files[0];
+    
+    if (!clientSecretFile) {
+        alert('Please select your client secret JSON file');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('client_secret_file', clientSecretFile);
+
+    fetch('/api/youtube/authenticate', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('authStatus').innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Authentication URL generated
+                </div>
+                <p>Visit this URL to authorize:</p>
+                <a href="${data.auth_url}" target="_blank" class="btn btn-primary">
+                    <i class="fas fa-external-link-alt"></i> Open Authorization URL
+                </a>
+            `;
+            logUploadMessage('Authentication URL generated. Please authorize the application.');
+        } else {
+            alert('Authentication failed: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Authentication failed');
+    });
+}
+
+// Handle OAuth callback (this would normally be a separate route)
+function handleOAuthCallback(authCode) {
+    const clientSecretFile = document.getElementById('clientSecretFile').files[0];
+    
+    const formData = new FormData();
+    formData.append('client_secret_file', clientSecretFile);
+
+    fetch('/api/youtube/callback', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            auth_code: authCode,
+            client_secret_file: 'placeholder' // This would be handled server-side
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            isAuthenticated = true;
+            document.getElementById('authStatus').innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Authenticated as ${data.credentials.email}
+                </div>
+            `;
+            logUploadMessage('Successfully authenticated with YouTube');
+            loadPlaylists();
+        } else {
+            alert('Authentication failed: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Authentication failed');
+    });
+}
+
+// Toggle schedule options
+function toggleScheduleOptions() {
+    const schedulePublish = document.getElementById('schedulePublish').checked;
+    document.getElementById('scheduleOptions').style.display = schedulePublish ? 'block' : 'none';
+}
+
+// Upload video to YouTube
+function uploadVideo() {
+    if (!isAuthenticated) {
+        alert('Please authenticate with YouTube first');
+        return;
+    }
+
+    const videoFile = document.getElementById('videoFile').files[0];
+    if (!videoFile) {
+        alert('Please select a video file');
+        return;
+    }
+
+    const title = document.getElementById('videoTitle').value;
+    if (!title) {
+        alert('Please enter a video title');
+        return;
+    }
+
+    // Upload video file first
+    const formData = new FormData();
+    formData.append('video', videoFile);
+
+    fetch('/api/upload-video', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            logUploadMessage('Video file uploaded successfully');
+            
+            // Now upload to YouTube
+            const uploadData = {
+                video_path: data.filepath,
+                title: title,
+                description: document.getElementById('videoDescription').value,
+                tags: document.getElementById('videoTags').value.split(',').map(t => t.trim()).filter(t => t),
+                category: document.getElementById('videoCategory').value,
+                privacy_status: document.getElementById('privacyStatus').value,
+                made_for_kids: document.getElementById('madeForKids').checked,
+                playlist_names: document.getElementById('playlistNames').value.split(',').map(p => p.trim()).filter(p => p),
+                publish_at: document.getElementById('schedulePublish').checked ? document.getElementById('publishAt').value : null
+            };
+
+            // Handle thumbnail if provided
+            const thumbnailFile = document.getElementById('thumbnailFile').files[0];
+            if (thumbnailFile) {
+                // Upload thumbnail separately
+                const thumbnailFormData = new FormData();
+                thumbnailFormData.append('thumbnail', thumbnailFile);
+                
+                return fetch('/api/upload-thumbnail', {
+                    method: 'POST',
+                    body: thumbnailFormData
+                })
+                .then(response => response.json())
+                .then(thumbnailData => {
+                    if (thumbnailData.success) {
+                        uploadData.thumbnail_path = thumbnailData.filepath;
+                    }
+                    return uploadData;
+                });
+            }
+            
+            return uploadData;
+        } else {
+            throw new Error(data.error);
+        }
+    })
+    .then(uploadData => {
+        return fetch('/api/youtube/upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(uploadData)
+        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentUploadTaskId = data.task_id;
+            logUploadMessage('YouTube upload started');
+            checkUploadStatus();
+        } else {
+            alert('Upload failed: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Upload failed');
+    });
+}
+
+// Check upload status
+function checkUploadStatus() {
+    if (!currentUploadTaskId) return;
+
+    fetch(`/api/status/${currentUploadTaskId}`)
+    .then(response => response.json())
+    .then(data => {
+        updateUploadStatusDisplay(data);
+        
+        if (data.status === 'processing') {
+            setTimeout(checkUploadStatus, 3000);
+        } else if (data.status === 'completed') {
+            logUploadMessage('Upload completed successfully!');
+            addRecentUpload(data.result);
+        } else if (data.status === 'failed') {
+            logUploadMessage('Upload failed: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error checking status:', error);
+    });
+}
+
+// Update upload status display
+function updateUploadStatusDisplay(data) {
+    const statusDiv = document.getElementById('uploadStatus');
+    const progressBar = document.getElementById('uploadProgressBar');
+    const progressText = progressBar.querySelector('.progress-bar');
+
+    statusDiv.innerHTML = `
+        <p><strong>Status:</strong> ${data.status}</p>
+        <p><strong>Message:</strong> ${data.message}</p>
+        <p><strong>Progress:</strong> ${data.progress}%</p>
+    `;
+
+    progressBar.style.display = 'block';
+    progressText.style.width = data.progress + '%';
+}
+
+// Log upload message
+function logUploadMessage(message) {
+    const logDiv = document.getElementById('uploadLog');
+    const timestamp = new Date().toLocaleTimeString();
+    const messageElement = document.createElement('p');
+    messageElement.className = 'mb-1';
+    messageElement.textContent = `[${timestamp}] ${message}`;
+    logDiv.appendChild(messageElement);
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+// Load playlists
+function loadPlaylists() {
+    if (!isAuthenticated) {
+        alert('Please authenticate with YouTube first');
+        return;
+    }
+
+    fetch('/api/youtube/playlists')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const playlistsDiv = document.getElementById('playlistsList');
+            
+            if (data.playlists && data.playlists.length > 0) {
+                let html = '<ul class="list-group">';
+                data.playlists.forEach(playlist => {
+                    html += `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${playlist.snippet.title}
+                            <span class="badge bg-primary rounded-pill">${playlist.contentDetails.itemCount} videos</span>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                playlistsDiv.innerHTML = html;
+                logUploadMessage(`Loaded ${data.playlists.length} playlists`);
+            } else {
+                playlistsDiv.innerHTML = '<p class="text-muted">No playlists found</p>';
+            }
+        } else {
+            alert('Failed to load playlists: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to load playlists');
+    });
+}
+
+// Add recent upload
+function addRecentUpload(result) {
+    const recentDiv = document.getElementById('recentUploads');
+    
+    if (result && result.video_id) {
+        const uploadItem = `
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <h6 class="card-title mb-1">${result.title}</h6>
+                    <p class="card-text small mb-1">
+                        <a href="https://youtube.com/watch?v=${result.video_id}" target="_blank">
+                            <i class="fab fa-youtube"></i> View on YouTube
+                        </a>
+                    </p>
+                    <small class="text-muted">Uploaded: ${new Date().toLocaleString()}</small>
+                </div>
+            </div>
+        `;
+        
+        if (recentDiv.querySelector('.text-muted')) {
+            recentDiv.innerHTML = uploadItem;
+        } else {
+            recentDiv.insertAdjacentHTML('afterbegin', uploadItem);
+        }
+    }
+}
+
+// Simulate authentication for demo purposes
+// In production, this would be handled by the OAuth callback
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if there's already an authenticated session
+    // This would typically be handled by session management
+});
+</script>
+{% endblock %}

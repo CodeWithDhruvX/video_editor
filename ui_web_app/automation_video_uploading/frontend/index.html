@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="VideoFlow — Automation Video Editor and YouTube Uploader. Edit shorts with AI captions, bulk upload to YouTube with scheduling and playlist management." />
+    <title>VideoFlow — Automation Video Editor &amp; YouTube Uploader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        document.body.innerHTML += '<div style="color: red; background: #fee; padding: 20px; font-family: monospace; z-index: 9999; position: fixed; top: 0; left: 0; right: 0;"><strong>Error:</strong> ' + msg + '<br/>' + (error && error.stack ? error.stack.replace(/\n/g, '<br/>') : '') + '</div>';
+      };
+      window.onunhandledrejection = function(event) {
+        document.body.innerHTML += '<div style="color: red; background: #fee; padding: 20px; font-family: monospace; z-index: 9999; position: fixed; top: 0; left: 0; right: 0;"><strong>Unhandled Promise Rejection:</strong> ' + event.reason + '</div>';
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

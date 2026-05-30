@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Video Processor Pro{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="hero-section text-center py-5">
+            <h1 class="display-4">🎬 Welcome to Video Processor Pro</h1>
+            <p class="lead">Enhanced Edition with Mixed Fonts & Speech Recognition</p>
+            <p class="text-muted">Process videos, generate subtitles, and upload directly to YouTube</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-video fa-3x text-primary"></i>
+                </div>
+                <h3 class="card-title mt-3">Video Processing</h3>
+                <p class="card-text">
+                    Upload, merge, and process videos with advanced effects, 
+                    background music, and automatic subtitle generation using AI.
+                </p>
+                <a href="/video-processor" class="btn btn-primary btn-lg">
+                    <i class="fas fa-cut"></i> Start Processing
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fab fa-youtube fa-3x text-danger"></i>
+                </div>
+                <h3 class="card-title mt-3">YouTube Upload</h3>
+                <p class="card-text">
+                    Upload your processed videos directly to YouTube with 
+                    custom metadata, playlists, thumbnails, and scheduled publishing.
+                </p>
+                <a href="/youtube-uploader" class="btn btn-danger btn-lg">
+                    <i class="fab fa-youtube"></i> Upload to YouTube
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-info-circle"></i> Features</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-film text-primary"></i> Video Editing</h5>
+                        <ul class="list-unstyled">
+                            <li>✓ Merge multiple videos</li>
+                            <li>✓ Add background music</li>
+                            <li>✓ Text effects and styling</li>
+                            <li>✓ Video trimming and processing</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-closed-captioning text-success"></i> Subtitles</h5>
+                        <ul class="list-unstyled">
+                            <li>✓ AI-powered speech recognition</li>
+                            <li>✓ Multi-language support</li>
+                            <li>✓ Customizable subtitle styling</li>
+                            <li>✓ Export in multiple formats</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><i class="fab fa-youtube text-danger"></i> YouTube Integration</h5>
+                        <ul class="list-unstyled">
+                            <li>✓ Direct video upload</li>
+                            <li>✓ Playlist management</li>
+                            <li>✓ Custom thumbnails</li>
+                            <li>✓ Scheduled publishing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
