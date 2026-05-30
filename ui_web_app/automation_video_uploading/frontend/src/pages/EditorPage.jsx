@@ -12,6 +12,13 @@ const SUBTITLE_MODES = [
   { value: 'mixed', label: '🎨 Mixed Styles', desc: 'Creative random fonts & colors' },
 ];
 const COLOR_PRESETS = ['#FFFFFF', '#FFFF00', '#FF6B6B', '#06FFA5', '#06B6D4', '#FF69B4', '#FFA500', '#C4B5FD'];
+const FONT_FAMILIES = [
+  'Arial', 'Arial Black', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Impact', 
+  'Times New Roman', 'Georgia', 'Courier New', 'Comic Sans MS', 
+  'Lucida Console', 'Lucida Sans Unicode', 'Palatino Linotype', 
+  'Garamond', 'Book Antiqua', 'Consolas', 'Segoe UI', 'Calibri', 
+  'Cambria', 'Candara', 'Franklin Gothic Medium', 'Corbel', 'Constantia'
+];
 
 export default function EditorPage() {
   // File state
@@ -35,6 +42,7 @@ export default function EditorPage() {
   const [subtitleMode, setSubtitleMode] = useState('mixed');
   const [wordsCount, setWordsCount] = useState(3);
   const [subtitleColor, setSubtitleColor] = useState('#FFFFFF');
+  const [subtitleFont, setSubtitleFont] = useState('Arial');
   const [subtitleSize, setSubtitleSize] = useState(24);
   const [enableBorders, setEnableBorders] = useState(true);
   const [borderColor, setBorderColor] = useState('#000000');
@@ -96,6 +104,7 @@ export default function EditorPage() {
       edited_transcripts: transcripts,
       subtitle_settings: {
         color: subtitleColor,
+        font_family: subtitleFont,
         mode: subtitleMode,
         size: subtitleSize,
         words_count: wordsCount,
@@ -343,6 +352,21 @@ export default function EditorPage() {
                   />
                   <span className="slider-value">{wordsCount}</span>
                 </div>
+              </div>
+            )}
+
+            {(subtitleMode === 'single' || subtitleMode === 'multiple') && (
+              <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                <label className="form-label">Font Family</label>
+                <select
+                  className="form-select"
+                  value={subtitleFont}
+                  onChange={(e) => setSubtitleFont(e.target.value)}
+                >
+                  {FONT_FAMILIES.map((font) => (
+                    <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>
+                  ))}
+                </select>
               </div>
             )}
 

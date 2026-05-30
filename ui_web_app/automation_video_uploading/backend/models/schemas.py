@@ -43,6 +43,7 @@ class MixedFontSettings(BaseModel):
 
 class SubtitleSettings(BaseModel):
     color: str = "#FFFFFF"
+    font_family: str = "Arial"
     mode: SubtitleMode = SubtitleMode.mixed
     size: int = Field(default=24, ge=12, le=48)
     words_count: int = Field(default=3, ge=2, le=10)

@@ -9,17 +9,58 @@ export default function SubtitleEditor({ transcripts, setTranscripts }) {
     setTranscripts(newTranscripts);
   };
 
+  const handleExport = () => {
+    const dataStr = JSON.stringify(transcripts, null, 2);
+    const blob = new Blob([dataStr], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'transcripts_export.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const importedData = JSON.parse(event.target.result);
+        setTranscripts(importedData);
+      } catch (err) {
+        alert('Invalid transcript file format. Must be a valid JSON text file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset input
+  };
+
   if (!transcripts || Object.keys(transcripts).length === 0) {
     return null;
   }
 
   return (
     <div className="card" style={{ marginTop: '1rem' }}>
-      <div className="card-header">
-        <div className="card-icon" style={{ background: 'rgba(59,130,246,0.15)' }}>📝</div>
-        <div>
-          <div className="card-title">Edit Subtitles</div>
-          <div className="card-subtitle">Review and correct the generated transcript for each video.</div>
+      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className="card-icon" style={{ background: 'rgba(59,130,246,0.15)' }}>📝</div>
+          <div>
+            <div className="card-title">Edit Subtitles</div>
+            <div className="card-subtitle">Review and correct the generated transcript for each video.</div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-secondary btn-sm" onClick={handleExport}>
+            📥 Export (.txt)
+          </button>
+          <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', margin: 0 }}>
+            📤 Import (.txt)
+            <input type="file" accept=".txt,.json" style={{ display: 'none' }} onChange={handleImport} />
+          </label>
         </div>
       </div>
       
