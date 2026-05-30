@@ -62,6 +62,7 @@ export const uploaderApi = {
   // Processed Videos
   getProcessedVideos: () => api.get('/uploader/processed-videos'),
   deleteProcessedVideos: (paths) => api.post('/uploader/delete-processed-videos', { paths }),
+  watchVideo: (path) => api.post('/uploader/watch-video', { path }),
 };
 
 // ─── Health ───

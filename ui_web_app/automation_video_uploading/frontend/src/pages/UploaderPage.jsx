@@ -460,6 +460,14 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
     }
   };
 
+  const watchVideo = async (path) => {
+    try {
+      await uploaderApi.watchVideo(path);
+    } catch (e) {
+      alert('Failed to open video: ' + (e.response?.data?.detail || e.message));
+    }
+  };
+
   const addProcessedToBatch = () => {
     const toAdd = processedVideos.filter(v => selectedProcessed.includes(v.path));
     if (toAdd.length === 0) return;
@@ -637,8 +645,20 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                           />
                         </td>
                         <td style={{ padding: '0.75rem' }}>
-                          <div style={{ wordBreak: 'break-all', fontWeight: '500' }}>{v.name}</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(v.created_at * 1000).toLocaleString()}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                              <div style={{ wordBreak: 'break-all', fontWeight: '500' }}>{v.name}</div>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(v.created_at * 1000).toLocaleString()}</div>
+                            </div>
+                            <button 
+                              className="btn btn-ghost btn-sm"
+                              style={{ padding: '0.25rem 0.5rem', marginLeft: '0.5rem' }}
+                              onClick={(e) => { e.stopPropagation(); watchVideo(v.path); }}
+                              title="Watch Video"
+                            >
+                              ▶️ Watch
+                            </button>
+                          </div>
                         </td>
                         <td style={{ padding: '0.75rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>{v.job_id.substring(0, 8)}...</td>
                         <td style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)' }}>{(v.size / (1024*1024)).toFixed(1)} MB</td>
@@ -690,7 +710,7 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                       <tr style={{ borderBottom: '1px solid rgba(16,185,129,0.2)', textAlign: 'left', color: 'var(--text-muted)' }}>
                         <th style={{ padding: '0.75rem' }}>Filename</th>
                         <th style={{ padding: '0.75rem', width: '80px', textAlign: 'right' }}>Size</th>
-                        <th style={{ padding: '0.75rem', width: '100px', textAlign: 'center' }}>Action</th>
+                        <th style={{ padding: '0.75rem', width: '160px', textAlign: 'center' }}>Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -701,13 +721,23 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                           </td>
                           <td style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)' }}>{(v.size / (1024*1024)).toFixed(1)} MB</td>
                           <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                            <button 
-                              className="btn btn-ghost btn-sm" 
-                              style={{ color: '#fca5a5', padding: '0.25rem 0.5rem' }}
-                              onClick={() => setVideos(prev => prev.filter(pv => pv.name !== v.name))}
-                            >
-                              Remove
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                              <button 
+                                className="btn btn-ghost btn-sm" 
+                                style={{ color: 'var(--accent-cyan)', padding: '0.25rem 0.5rem' }}
+                                onClick={() => watchVideo(v.name)}
+                                title="Watch Video"
+                              >
+                                ▶️ Watch
+                              </button>
+                              <button 
+                                className="btn btn-ghost btn-sm" 
+                                style={{ color: '#fca5a5', padding: '0.25rem 0.5rem' }}
+                                onClick={() => setVideos(prev => prev.filter(pv => pv.name !== v.name))}
+                              >
+                                Remove
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}

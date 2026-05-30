@@ -43,6 +43,9 @@ REDIRECT_URI = "http://localhost:8000/uploader/auth/callback"
 class DeleteProcessedVideosRequest(BaseModel):
     paths: list[str]
 
+class WatchVideoRequest(BaseModel):
+    path: str
+
 
 
 # ─────────────────────────── WebSocket ───────────────────────────
@@ -457,3 +460,40 @@ async def delete_processed_videos(req: DeleteProcessedVideosRequest):
             errors.append(f"Failed to delete {p}: {str(e)}")
             
     return {"message": f"Deleted {deleted} files.", "errors": errors}
+
+@router.post("/watch-video")
+async def watch_video(req: WatchVideoRequest):
+    """Open video file locally using VLC or default system player."""
+    path = req.path
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="File not found")
+        
+    try:
+        import subprocess
+        # Try VLC in PATH first
+        try:
+            subprocess.Popen(["vlc", path])
+            return {"message": "Opened in VLC"}
+        except FileNotFoundError:
+            pass
+
+        # Try common VLC install paths on Windows
+        vlc_paths = [
+            r"C:\Program Files\VideoLAN\VLC\vlc.exe",
+            r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe"
+        ]
+        
+        for vlc_path in vlc_paths:
+            if os.path.exists(vlc_path):
+                subprocess.Popen([vlc_path, path])
+                return {"message": "Opened in VLC"}
+                
+        # Fallback to system default player
+        if os.name == 'nt':
+            os.startfile(path)
+            return {"message": "Opened in default media player (VLC not found)"}
+        else:
+            raise Exception("VLC not found")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to open video: {str(e)}")
