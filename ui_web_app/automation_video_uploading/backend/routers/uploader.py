@@ -46,6 +46,9 @@ class DeleteProcessedVideosRequest(BaseModel):
 class WatchVideoRequest(BaseModel):
     path: str
 
+class OpenFilePathRequest(BaseModel):
+    path: str
+
 
 
 # ─────────────────────────── WebSocket ───────────────────────────
@@ -467,7 +470,7 @@ async def watch_video(req: WatchVideoRequest):
     path = req.path
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="File not found")
-        
+
     try:
         import subprocess
         # Try VLC in PATH first
@@ -482,18 +485,45 @@ async def watch_video(req: WatchVideoRequest):
             r"C:\Program Files\VideoLAN\VLC\vlc.exe",
             r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe"
         ]
-        
+
         for vlc_path in vlc_paths:
             if os.path.exists(vlc_path):
                 subprocess.Popen([vlc_path, path])
                 return {"message": "Opened in VLC"}
-                
+
         # Fallback to system default player
         if os.name == 'nt':
             os.startfile(path)
             return {"message": "Opened in default media player (VLC not found)"}
         else:
             raise Exception("VLC not found")
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to open video: {str(e)}")
+
+
+@router.post("/open-file-path")
+async def open_file_path(req: OpenFilePathRequest):
+    """Open the file location in file explorer."""
+    path = req.path
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    try:
+        import subprocess
+        if os.name == 'nt':
+            # Windows: open file explorer and select the file
+            subprocess.Popen(['explorer', '/select,', path])
+            return {"message": "Opened file path in Explorer"}
+        else:
+            # macOS and Linux: open the directory containing the file
+            dir_path = str(Path(path).parent)
+            if os.name == 'darwin':
+                subprocess.Popen(['open', dir_path])
+                return {"message": "Opened file path in Finder"}
+            else:
+                subprocess.Popen(['xdg-open', dir_path])
+                return {"message": "Opened file path in file manager"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to open file path: {str(e)}")

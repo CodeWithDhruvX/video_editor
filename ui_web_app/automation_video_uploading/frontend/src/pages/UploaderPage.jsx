@@ -420,6 +420,7 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
   const [processedVideos, setProcessedVideos] = useState([]);
   const [selectedProcessed, setSelectedProcessed] = useState([]);
   const [fetchingProcessed, setFetchingProcessed] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const { logs, progress, status, reset } = useWebSocket(jobId, 'uploader');
 
@@ -465,6 +466,14 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
       await uploaderApi.watchVideo(path);
     } catch (e) {
       alert('Failed to open video: ' + (e.response?.data?.detail || e.message));
+    }
+  };
+
+  const openFilePath = async (path) => {
+    try {
+      await uploaderApi.openFilePath(path);
+    } catch (e) {
+      alert('Failed to open file path: ' + (e.response?.data?.detail || e.message));
     }
   };
 
@@ -608,13 +617,36 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
             <div style={{ display: 'grid', gap: '1rem', marginTop: '0.5rem' }}>
               {/* Available Server Videos */}
               <div>
-                <div style={{ marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                  Available Server Videos
+                <div style={{ marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Available Server Videos</span>
+                  <input
+                    type="text"
+                    placeholder="Search videos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                      padding: '0.4rem 0.6rem',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(0,0,0,0.3)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.8rem',
+                      width: '200px'
+                    }}
+                  />
                 </div>
                 <div style={{ maxHeight: '200px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  {processedVideos.filter(v => !videos.find(sv => sv.isServer && sv.name === v.path)).length === 0 ? (
+                  {processedVideos
+                    .filter(v => !videos.find(sv => sv.isServer && sv.name === v.path))
+                    .filter(v => {
+                      if (!searchTerm) return true;
+                      const searchLower = searchTerm.toLowerCase();
+                      return v.name.toLowerCase().includes(searchLower) ||
+                             v.job_id.toLowerCase().includes(searchLower) ||
+                             v.path.toLowerCase().includes(searchLower);
+                    }).length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                      No available processed videos found on the server.
+                      {searchTerm ? 'No videos match your search.' : 'No available processed videos found on the server.'}
                     </div>
                   ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
@@ -635,6 +667,13 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                   <tbody>
                     {processedVideos
                       .filter(v => !videos.find(sv => sv.isServer && sv.name === v.path))
+                      .filter(v => {
+                        if (!searchTerm) return true;
+                        const searchLower = searchTerm.toLowerCase();
+                        return v.name.toLowerCase().includes(searchLower) ||
+                               v.job_id.toLowerCase().includes(searchLower) ||
+                               v.path.toLowerCase().includes(searchLower);
+                      })
                       .map(v => (
                       <tr key={v.path} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }} onClick={() => toggleProcessedSelection(v.path)}>
                         <td style={{ padding: '0.75rem', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
@@ -650,14 +689,24 @@ function BatchUploadTab({ authStatus, activeChannelId, setActiveChannelId }) {
                               <div style={{ wordBreak: 'break-all', fontWeight: '500' }}>{v.name}</div>
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(v.created_at * 1000).toLocaleString()}</div>
                             </div>
-                            <button 
-                              className="btn btn-ghost btn-sm"
-                              style={{ padding: '0.25rem 0.5rem', marginLeft: '0.5rem' }}
-                              onClick={(e) => { e.stopPropagation(); watchVideo(v.path); }}
-                              title="Watch Video"
-                            >
-                              ▶️ Watch
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                              <button 
+                                className="btn btn-ghost btn-sm"
+                                style={{ padding: '0.25rem 0.5rem' }}
+                                onClick={(e) => { e.stopPropagation(); watchVideo(v.path); }}
+                                title="Watch Video"
+                              >
+                                ▶️ Watch
+                              </button>
+                              <button 
+                                className="btn btn-ghost btn-sm"
+                                style={{ padding: '0.25rem 0.5rem' }}
+                                onClick={(e) => { e.stopPropagation(); openFilePath(v.path); }}
+                                title="Open File Path"
+                              >
+                                📂 Open Path
+                              </button>
+                            </div>
                           </div>
                         </td>
                         <td style={{ padding: '0.75rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>{v.job_id.substring(0, 8)}...</td>
