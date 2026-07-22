@@ -79,7 +79,10 @@ async def _send_ws(job_id: str, msg_type: str, message: str, progress=None):
 # ─────────────────────────── Endpoints ───────────────────────────
 
 @router.post("/transcribe")
-async def transcribe_video_endpoint(video: UploadFile = File(...)):
+async def transcribe_video_endpoint(
+    video: UploadFile = File(...),
+    language: str = Form("en")
+):
     """
     Transcribe a single video file and return the word-level transcript.
     """
@@ -96,7 +99,7 @@ async def transcribe_video_endpoint(video: UploadFile = File(...)):
         async def dummy_cb(msg_type: str, msg: str, prog: float = None):
             pass
             
-        words = await transcribe_video(tmp_path, dummy_cb)
+        words = await transcribe_video(tmp_path, dummy_cb, language)
         return {"words": words}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
@@ -177,6 +180,7 @@ async def start_processing(
                 subtitle_settings=edit_config.subtitle_settings.model_dump(),
                 progress_cb=cb,
                 stop_event=stop_event,
+                language=edit_config.subtitle_settings.language,
             )
             _jobs[job_id]["output_files"] = [Path(f).name for f in output_files]
             await _send_ws(job_id, "COMPLETE", "🎉 All videos processed successfully!", 100.0)
@@ -235,6 +239,45 @@ async def download_output(job_id: str, filename: str):
         media_type="video/mp4",
         filename=filename,
     )
+
+
+@router.post("/watch/{job_id}/{filename}")
+async def watch_output(job_id: str, filename: str):
+    """Open processed output video locally using VLC or default system player."""
+    file_path = OUTPUT_DIR / job_id / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    path = str(file_path.absolute())
+    try:
+        import subprocess
+        # Try VLC in PATH first
+        try:
+            subprocess.Popen(["vlc", path])
+            return {"message": "Opened in VLC"}
+        except FileNotFoundError:
+            pass
+
+        # Try common VLC install paths on Windows
+        vlc_paths = [
+            r"C:\Program Files\VideoLAN\VLC\vlc.exe",
+            r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe"
+        ]
+
+        for vlc_path in vlc_paths:
+            if os.path.exists(vlc_path):
+                subprocess.Popen([vlc_path, path])
+                return {"message": "Opened in VLC"}
+
+        # Fallback to system default player
+        if os.name == 'nt':
+            os.startfile(path)
+            return {"message": "Opened in default media player (VLC not found)"}
+        else:
+            raise Exception("VLC not found")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to open video: {str(e)}")
 
 
 @router.get("/jobs")

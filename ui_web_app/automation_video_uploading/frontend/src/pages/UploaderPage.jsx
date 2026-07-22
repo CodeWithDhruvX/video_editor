@@ -1070,13 +1070,15 @@ export default function UploaderPage() {
         ))}
       </div>
 
-      {activeTab === 'auth' && (
-        <div style={{ maxWidth: '600px' }}>
-          <AuthPanel authStatus={authStatus} onStatusChange={setAuthStatus} />
-        </div>
-      )}
-      {activeTab === 'single' && <SingleUploadTab authStatus={authStatus} activeChannelId={activeChannelId} setActiveChannelId={setActiveChannelId} />}
-      {activeTab === 'batch' && <BatchUploadTab authStatus={authStatus} activeChannelId={activeChannelId} setActiveChannelId={setActiveChannelId} />}
+      <div style={{ display: activeTab === 'auth' ? 'block' : 'none', maxWidth: '600px' }}>
+        <AuthPanel authStatus={authStatus} onStatusChange={setAuthStatus} />
+      </div>
+      <div style={{ display: activeTab === 'single' ? 'block' : 'none' }}>
+        <SingleUploadTab authStatus={authStatus} activeChannelId={activeChannelId} setActiveChannelId={setActiveChannelId} />
+      </div>
+      <div style={{ display: activeTab === 'batch' ? 'block' : 'none' }}>
+        <BatchUploadTab authStatus={authStatus} activeChannelId={activeChannelId} setActiveChannelId={setActiveChannelId} />
+      </div>
     </div>
   );
 }

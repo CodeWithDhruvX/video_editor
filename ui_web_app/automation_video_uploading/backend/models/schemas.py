@@ -58,6 +58,7 @@ class SubtitleSettings(BaseModel):
     border_thickness: int = Field(default=3, ge=1, le=8)
     position: SubtitlePosition = SubtitlePosition.bottom
     mixed_font_settings: MixedFontSettings = Field(default_factory=MixedFontSettings)
+    language: str = Field(default="en", description="Language code for transcription (e.g., 'en', 'es', 'fr', 'hi')")
 
 
 class VideoEditConfig(BaseModel):

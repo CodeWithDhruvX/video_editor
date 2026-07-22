@@ -81,12 +81,13 @@ def get_video_duration(video_path: str) -> float:
 async def transcribe_video(
     video_path: str,
     progress_cb: ProgressCallback,
+    language: str = "en",
 ) -> List[Dict[str, Any]]:
     """
     Transcribe video audio using faster-whisper.
     Returns list of word-level segments: [{word, start, end}, ...]
     """
-    await progress_cb("LOG", "🎙️ Loading Whisper model...", None)
+    await progress_cb("LOG", f"🎙️ Loading Whisper model for language: {language}...", None)
 
     loop = asyncio.get_event_loop()
 
@@ -94,7 +95,7 @@ async def transcribe_video(
         try:
             from faster_whisper import WhisperModel
             model = WhisperModel("base", device="cpu", compute_type="int8")
-            segments, _ = model.transcribe(video_path, word_timestamps=True, language="en")
+            segments, _ = model.transcribe(video_path, word_timestamps=True, language=language)
             words = []
             for segment in segments:
                 if hasattr(segment, "words") and segment.words:
@@ -450,6 +451,7 @@ async def process_all_videos(
     subtitle_settings: Dict[str, Any],
     progress_cb: ProgressCallback,
     stop_event: asyncio.Event,
+    language: str = "en",
 ) -> List[str]:
     """
     Process all input videos and return list of output file paths.
@@ -489,7 +491,7 @@ async def process_all_videos(
             words = edited_transcripts[name]
         elif subtitle_settings.get("mode") in ("single", "multiple", "mixed"):
             await progress_cb("STATUS", f"🎙️ Transcribing audio with Whisper…", None)
-            words = await transcribe_video(video_path, progress_cb)
+            words = await transcribe_video(video_path, progress_cb, language)
         else:
             await progress_cb("LOG", "  ⏭ Skipping transcription (subtitle mode: none)", None)
 

@@ -24,6 +24,8 @@ export const editorApi = {
   listJobs: () => api.get('/editor/jobs'),
   downloadUrl: (jobId, filename) =>
     `${BASE_URL}/editor/download/${jobId}/${filename}`,
+  watchOutput: (jobId, filename) => 
+    api.post(`/editor/watch/${jobId}/${encodeURIComponent(filename)}`),
 };
 
 // ─── Uploader API ───

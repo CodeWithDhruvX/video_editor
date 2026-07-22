@@ -48,15 +48,25 @@ function Header() {
 }
 
 function AppLayout() {
+  const location = useLocation();
+  const isEditor = location.pathname === '/editor' || location.pathname === '/';
+  const isUploader = location.pathname === '/uploader';
+
   return (
     <div className="app-layout">
       <Header />
       <main className="app-main">
         <Routes>
           <Route path="/" element={<Navigate to="/editor" replace />} />
-          <Route path="/editor" element={<EditorPage />} />
-          <Route path="/uploader" element={<UploaderPage />} />
         </Routes>
+        
+        <div style={{ display: isEditor ? 'block' : 'none' }}>
+          <EditorPage />
+        </div>
+        
+        <div style={{ display: isUploader ? 'block' : 'none' }}>
+          <UploaderPage />
+        </div>
       </main>
 
       <footer style={{

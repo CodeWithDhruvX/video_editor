@@ -20,6 +20,29 @@ const FONT_FAMILIES = [
   'Cambria', 'Candara', 'Franklin Gothic Medium', 'Corbel', 'Constantia'
 ];
 
+const LANGUAGES = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'fr', name: 'French' },
+  { code: 'de', name: 'German' },
+  { code: 'it', name: 'Italian' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'zh', name: 'Chinese' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'tr', name: 'Turkish' },
+  { code: 'nl', name: 'Dutch' },
+  { code: 'pl', name: 'Polish' },
+  { code: 'sv', name: 'Swedish' },
+  { code: 'vi', name: 'Vietnamese' },
+  { code: 'th', name: 'Thai' },
+  { code: 'id', name: 'Indonesian' },
+  { code: 'uk', name: 'Ukrainian' },
+];
+
 export default function EditorPage() {
   // File state
   const [inputVideos, setInputVideos] = useState([]);
@@ -39,19 +62,20 @@ export default function EditorPage() {
   const [enableMerge, setEnableMerge] = useState(false);
 
   // Subtitle settings
-  const [subtitleMode, setSubtitleMode] = useState('mixed');
+  const [subtitleMode, setSubtitleMode] = useState('multiple');
   const [wordsCount, setWordsCount] = useState(3);
-  const [subtitleColor, setSubtitleColor] = useState('#FFFFFF');
-  const [subtitleFont, setSubtitleFont] = useState('Arial');
-  const [subtitleSize, setSubtitleSize] = useState(24);
+  const [subtitleColor, setSubtitleColor] = useState('#FFFF00');
+  const [subtitleFont, setSubtitleFont] = useState('Impact');
+  const [subtitleSize, setSubtitleSize] = useState(18);
   const [enableBorders, setEnableBorders] = useState(true);
   const [borderColor, setBorderColor] = useState('#000000');
-  const [borderThickness, setBorderThickness] = useState(3);
+  const [borderThickness, setBorderThickness] = useState(2);
   const [subtitlePosition, setSubtitlePosition] = useState('bottom');
   const [randomFonts, setRandomFonts] = useState(true);
   const [randomColors, setRandomColors] = useState(true);
   const [randomSizes, setRandomSizes] = useState(true);
   const [enableEffects, setEnableEffects] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   // Job state
   const [jobId, setJobId] = useState(null);
@@ -74,6 +98,7 @@ export default function EditorPage() {
       for (const video of inputVideos) {
         const fd = new FormData();
         fd.append('video', video);
+        fd.append('language', selectedLanguage);
         const res = await editorApi.transcribeVideo(fd);
         results[video.name] = res.data.words || [];
       }
@@ -113,6 +138,7 @@ export default function EditorPage() {
         border_color: borderColor,
         border_thickness: borderThickness,
         position: subtitlePosition,
+        language: selectedLanguage,
         mixed_font_settings: {
           enable_random_fonts: randomFonts,
           enable_random_colors: randomColors,
@@ -224,6 +250,24 @@ export default function EditorPage() {
               <div>
                 <div className="card-title">Transcription & Subtitles</div>
                 <div className="card-subtitle">Generate and edit subtitles before processing</div>
+              </div>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label className="form-label">🌍 Transcription Language</label>
+              <select
+                className="form-select"
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
+                Select the language spoken in your video for accurate transcription
               </div>
             </div>
             
@@ -516,13 +560,27 @@ export default function EditorPage() {
                   {outputFiles.map((fname) => (
                     <div className="file-item" key={fname}>
                       <span className="file-item-name">🎬 {fname}</span>
-                      <a
-                        href={editorApi.downloadUrl(jobId, fname)}
-                        className="btn btn-secondary btn-sm"
-                        download
-                      >
-                        ⬇️ Download
-                      </a>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          style={{ padding: '0.25rem 0.5rem', color: 'var(--accent-cyan)' }}
+                          onClick={() => {
+                            editorApi.watchOutput(jobId, fname).catch(e => {
+                              alert('Failed to open video: ' + (e.response?.data?.detail || e.message));
+                            });
+                          }}
+                          title="Watch Video Locally"
+                        >
+                          ▶️ Watch
+                        </button>
+                        <a
+                          href={editorApi.downloadUrl(jobId, fname)}
+                          className="btn btn-secondary btn-sm"
+                          download
+                        >
+                          ⬇️ Download
+                        </a>
+                      </div>
                     </div>
                   ))}
                 </div>
