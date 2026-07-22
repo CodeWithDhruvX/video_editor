@@ -14,10 +14,19 @@ export const editorApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
 
-  startProcessing: (formData) =>
+  startProcessing: (formData, onUploadProgress) =>
     api.post('/editor/process', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress,
     }),
+
+  startSectionMerge: (formData, onUploadProgress) =>
+    api.post('/editor/merge-sections', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress,
+    }),
+
+
 
   getStatus: (jobId) => api.get(`/editor/status/${jobId}`),
   stopJob: (jobId) => api.post(`/editor/stop/${jobId}`),

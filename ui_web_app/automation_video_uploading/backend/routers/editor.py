@@ -13,8 +13,8 @@ from typing import Dict, Any
 from fastapi import APIRouter, File, Form, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 
-from models.schemas import JobStatusResponse, JobStatus, VideoEditConfig
-from services.video_processor import process_all_videos, transcribe_video
+from models.schemas import JobStatusResponse, JobStatus, VideoEditConfig, SectionMergeConfig
+from services.video_processor import process_all_videos, transcribe_video, merge_sections_videos
 
 router = APIRouter(prefix="/editor", tags=["editor"])
 
@@ -36,6 +36,25 @@ async def editor_ws(websocket: WebSocket, job_id: str):
     await websocket.accept()
     _ws_connections[job_id] = websocket
     try:
+        # Replay any existing logs sent before WS connection was established
+        job = _jobs.get(job_id)
+        if job:
+            for log_entry in list(job.get("logs", [])):
+                try:
+                    if log_entry.startswith("[") and "]" in log_entry:
+                        mtype_str, mtext = log_entry[1:].split("]", 1)
+                        mtype = mtype_str.strip()
+                        mtext = mtext.strip()
+                    else:
+                        mtype, mtext = "LOG", log_entry
+                    await websocket.send_json({
+                        "type": mtype,
+                        "message": mtext,
+                        "progress": job.get("progress", 0.0),
+                    })
+                except Exception:
+                    pass
+
         # Keep alive until job finishes or client disconnects
         while True:
             job = _jobs.get(job_id)
@@ -46,6 +65,7 @@ async def editor_ws(websocket: WebSocket, job_id: str):
         pass
     finally:
         _ws_connections.pop(job_id, None)
+
 
 
 async def _send_ws(job_id: str, msg_type: str, message: str, progress=None):
@@ -199,7 +219,88 @@ async def start_processing(
     )
 
 
+@router.post("/merge-sections", response_model=JobStatusResponse)
+async def merge_sections_endpoint(
+    files: list[UploadFile] = File(...),
+    background_music: UploadFile = File(None),
+    config_json: str = Form("{}"),
+):
+    """
+    Start a Section Video Merging job.
+    Accepts video files, optional background music, and section JSON configuration.
+    """
+    job_id = str(uuid.uuid4())
+    job_dir = UPLOAD_DIR / job_id
+    job_dir.mkdir(parents=True, exist_ok=True)
+    output_job_dir = OUTPUT_DIR / job_id
+    output_job_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        raw_config = json.loads(config_json)
+        merge_config = SectionMergeConfig(**raw_config)
+    except Exception as e:
+        print(f"[WARN] Error parsing SectionMergeConfig: {e}")
+        merge_config = SectionMergeConfig()
+
+    uploaded_paths = []
+    for file in files:
+        dest = job_dir / file.filename
+        content = await file.read()
+        dest.write_bytes(content)
+        uploaded_paths.append(str(dest))
+
+    music_path = None
+    if background_music:
+        dest = job_dir / background_music.filename
+        content = await background_music.read()
+        dest.write_bytes(content)
+        music_path = str(dest)
+
+    stop_event = asyncio.Event()
+
+    _jobs[job_id] = {
+        "status": JobStatus.running,
+        "progress": 0.0,
+        "logs": [],
+        "output_files": [],
+        "stop_event": stop_event,
+    }
+
+    async def _run():
+        try:
+            async def cb(msg_type, message, progress):
+                await _send_ws(job_id, msg_type, message, progress)
+
+            sections_data = [sec.model_dump() for sec in merge_config.sections]
+
+            output_files = await merge_sections_videos(
+                uploaded_file_paths=uploaded_paths,
+                sections=sections_data,
+                output_dir=str(output_job_dir),
+                background_music=music_path,
+                config=merge_config.model_dump(),
+                progress_cb=cb,
+                stop_event=stop_event,
+            )
+            _jobs[job_id]["output_files"] = [Path(f).name for f in output_files]
+            await _send_ws(job_id, "COMPLETE", "🎉 Section video merging complete!", 100.0)
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f"[CRITICAL ERROR] Section merge failed:\n{tb}")
+            await _send_ws(job_id, "ERROR", f"❌ Section merge failed: {e}\n{tb}", None)
+
+    asyncio.create_task(_run())
+
+    return JobStatusResponse(
+        job_id=job_id,
+        status=JobStatus.running,
+        progress=0.0,
+        logs=[],
+    )
+
+
 @router.get("/status/{job_id}", response_model=JobStatusResponse)
+
 async def get_job_status(job_id: str):
     """Poll job status (alternative to WebSocket)."""
     job = _jobs.get(job_id)

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, useLocation, Navigate } from 'react-router-dom';
 import EditorPage from './pages/EditorPage';
 import UploaderPage from './pages/UploaderPage';
+import SectionMergerPage from './pages/SectionMergerPage';
 import './index.css';
 
 function Header() {
@@ -9,6 +10,7 @@ function Header() {
 
   const navItems = [
     { path: '/editor', label: '🎬 Video Editor' },
+    { path: '/merger', label: '🧩 Section Merger' },
     { path: '/uploader', label: '📺 YouTube Uploader' },
   ];
 
@@ -50,6 +52,7 @@ function Header() {
 function AppLayout() {
   const location = useLocation();
   const isEditor = location.pathname === '/editor' || location.pathname === '/';
+  const isMerger = location.pathname === '/merger';
   const isUploader = location.pathname === '/uploader';
 
   return (
@@ -64,10 +67,15 @@ function AppLayout() {
           <EditorPage />
         </div>
         
+        <div style={{ display: isMerger ? 'block' : 'none' }}>
+          <SectionMergerPage />
+        </div>
+
         <div style={{ display: isUploader ? 'block' : 'none' }}>
           <UploaderPage />
         </div>
       </main>
+
 
       <footer style={{
         textAlign: 'center',

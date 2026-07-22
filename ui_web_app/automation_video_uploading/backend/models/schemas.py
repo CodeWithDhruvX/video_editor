@@ -38,7 +38,38 @@ class JobStatus(str, Enum):
     stopped = "stopped"
 
 
+class SectionOutputMode(str, Enum):
+    master = "master"
+    sections = "sections"
+    both = "both"
+
+
+class SectionResolution(str, Enum):
+    source = "source"
+    p1080 = "1080p"
+    p720 = "720p"
+    p4k = "4k"
+    vertical = "vertical_1080x1920"
+
+
+class SectionInfo(BaseModel):
+    id: str
+    title: str
+    file_indices: List[int] = []
+
+
+class SectionMergeConfig(BaseModel):
+    output_mode: SectionOutputMode = SectionOutputMode.both
+    resolution: SectionResolution = SectionResolution.p1080
+    fps: int = 30
+    quality_preset: QualityPreset = QualityPreset.fast
+    enable_gpu: bool = True
+    music_volume: float = Field(default=0.30, ge=0.0, le=1.0)
+    sections: List[SectionInfo] = []
+
+
 # ─────────────────────────── Video Editor Schemas ───────────────────────────
+
 
 class MixedFontSettings(BaseModel):
     enable_random_fonts: bool = True

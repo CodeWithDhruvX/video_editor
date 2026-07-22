@@ -83,7 +83,7 @@ export default function EditorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const { logs, progress, status, reset } = useWebSocket(jobId, 'editor');
+  const { logs, progress, status, addLog, setStatus, setProgress, reset } = useWebSocket(jobId, 'editor');
 
   const handleTranscribe = async () => {
     if (inputVideos.length === 0) {
@@ -119,6 +119,8 @@ export default function EditorPage() {
     setIsSubmitting(true);
     reset();
     setOutputFiles([]);
+    setStatus('running');
+    addLog('STATUS', `📤 Uploading ${inputVideos.length} video(s) to server…`);
 
     const config = {
       quality_preset: quality,
@@ -155,14 +157,25 @@ export default function EditorPage() {
     fd.append('config_json', JSON.stringify(config));
 
     try {
-      const res = await editorApi.startProcessing(fd);
+      const res = await editorApi.startProcessing(fd, (evt) => {
+        if (evt.total) {
+          const pct = Math.round((evt.loaded * 100) / evt.total);
+          setProgress(pct);
+          if (pct === 100) {
+            addLog('STATUS', '⚡ Upload complete. Backend processing initializing…');
+          }
+        }
+      });
       setJobId(res.data.job_id);
     } catch (e) {
       setError(e.response?.data?.detail || 'Failed to start processing');
+      setStatus('failed');
+      addLog('ERROR', e.response?.data?.detail || 'Failed to start processing');
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   // Poll for output files when job completes
   const pollRef = useRef(null);
